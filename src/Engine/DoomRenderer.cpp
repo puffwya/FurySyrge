@@ -8,9 +8,6 @@
 // constants
 static constexpr float EPS = 1e-6f;
 static constexpr float WALL_WORLD_HEIGHT = 1.0f; // world units for a full-height wall
-static constexpr uint32_t COLOR_SIDE_X = 0xFF00AAFF;
-static constexpr uint32_t COLOR_SIDE_Y = 0xFF0055FF;
-static constexpr uint32_t COLOR_TOP    = 0xFF808080;
 
 SpriteRenderer spriteRenderer;
 
@@ -43,7 +40,9 @@ void DoomRenderer::drawBulletHolesOnWall(
     float sxA, float sxB,
     int screenW, int screenH,
     uint32_t* pixels,
-    BulletHoleManager& bulletHoleManager
+    BulletHoleManager& bulletHoleManager,
+    const Player& player,
+    float playerToWallDist
 ) {
     for (const BulletHole& hole : bulletHoleManager.getAll()) {
         // Only draw holes for this tile face
@@ -61,8 +60,17 @@ void DoomRenderer::drawBulletHolesOnWall(
         int px = int(sx + 0.5f);
         if (px < 0 || px >= screenW) continue;
     
-        // Vertical position: player height + vertical offset
-        int midY = screenH / 2 + hole.verticalOffset;
+        // Vertical position: relative to player.z but scaled down to screen space
+        float zDiff = hole.holeZ - player.z;
+
+        // Make scale distance-dependent
+        float baseScale = 800.0f;          // tweak experimentally
+        float distanceScale = baseScale / (playerToWallDist);  // farther walls = smaller vertical shift
+
+        // Clamp so it never gets too extreme
+        distanceScale = std::clamp(distanceScale, 50.0f, 600.0f);
+
+        int midY = int(screenH / 2 - zDiff * distanceScale) + hole.verticalOffset;
 
         // Draw the bullet hole texture
         for (int ty = 0; ty < texH; ++ty) {
@@ -300,7 +308,7 @@ void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int ma
     // Wall heights for this tile
     float tileH = map.get(mapTileX, mapTileY).height;
     float floorZ = (tileH < 0.0f) ? tileH : 0.0f;
-    float ceilZ  = (tileH < 0.0f) ? 0.0f : tileH;
+    float ceilZ = (tileH < 0.0f) ? 0.0f : tileH;
 
     // Project top/bottom for endpoints
     float a_sy_floor = (screenH * 0.5f) - (floorZ - player.z) * (screenH / a_camY);
@@ -319,16 +327,19 @@ void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int ma
         float colCeilY = a_sy_ceiling + t * (b_sy_ceiling - a_sy_ceiling);
 
         int drawStart = std::max(0, int(std::ceil(colCeilY)));
-        int drawEnd   = std::min(screenH - 1, int(std::floor(colFloorY)));
+        int drawEnd = std::min(screenH - 1, int(std::floor(colFloorY)));
         if (drawEnd < 0 || drawStart >= screenH) continue;
 
         // Compute world position along wall segment
         float wallWorldX = seg.a.x + t * (seg.b.x - seg.a.x);
         float wallWorldY = seg.a.y + t * (seg.b.y - seg.a.y);
 
+        // True distance from player to wall hit
+        float playerToWallDist = std::hypot(wallWorldX - player.x, wallWorldY - player.y);
+
         // Fractional horizontal coordinate along the wall segment (0 -> 1)
         float wallLength = std::hypot(seg.b.x - seg.a.x, seg.b.y - seg.a.y);
-        float wallDist   = std::hypot(wallWorldX - seg.a.x, wallWorldY - seg.a.y);
+        float wallDist = std::hypot(wallWorldX - seg.a.x, wallWorldY - seg.a.y);
         float u = wallDist / (wallLength + 1e-6f);
 
         // Draw textured column
@@ -346,7 +357,7 @@ void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int ma
             px += screenW;
         }
 
-        drawBulletHolesOnWall(seg, sxA, sxB, screenW, screenH, pixels, bulletHoleManager);
+        drawBulletHolesOnWall(seg, sxA, sxB, screenW, screenH, pixels, bulletHoleManager, player, playerToWallDist);
 
         if (tileH > 0.0f) { // Only blocking walls
             if (depth < zBuffer[sx]) {
@@ -387,7 +398,7 @@ void DoomRenderer::traverseBSP(
         player.x, player.y
     );
 
-    const BSPNode* first  = (side > 0.0f) ? node->front.get() : node->back.get();
+    const BSPNode* first = (side > 0.0f) ? node->front.get() : node->back.get();
     const BSPNode* second = (side > 0.0f) ? node->back.get()  : node->front.get();
 
     // Traverse far side first

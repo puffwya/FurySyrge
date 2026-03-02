@@ -30,7 +30,7 @@ public:
     void drawBulletHolesOnWall(
             const GridSegment& seg, float sxA, float sxB, int screenW,
             int screenH, uint32_t* pixels,
-            BulletHoleManager& bulletHoleManager);
+            BulletHoleManager& bulletHoleManager, const Player& player, float playerToWallDist);
 
 private:
     std::vector<GridSegment> m_segments;

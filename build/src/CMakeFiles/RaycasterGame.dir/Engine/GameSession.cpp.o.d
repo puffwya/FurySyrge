@@ -781,6 +781,7 @@ src/CMakeFiles/RaycasterGame.dir/Engine/GameSession.cpp.o: \
   /Users/wyattpuff/Raycaster/src/Engine/SpriteRenderer.h \
   /Users/wyattpuff/Raycaster/src/Engine/TextureManager.h \
   /Users/wyattpuff/Raycaster/src/Engine/Texture.h \
+  /Users/wyattpuff/Raycaster/src/Engine/../settings/GameSettings.h \
   /Users/wyattpuff/Raycaster/src/Engine/Renderer.h \
   /Users/wyattpuff/Raycaster/src/Engine/pItemRenderer.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/iostream \

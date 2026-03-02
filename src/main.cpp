@@ -178,7 +178,8 @@ int main() {
                     session = std::make_unique<GameSession>(
                         renderer,
                         SCREEN_WIDTH,
-                        SCREEN_HEIGHT
+                        SCREEN_HEIGHT,
+                        difficulty
                     );
                 }
 

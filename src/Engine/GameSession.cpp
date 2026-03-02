@@ -5,7 +5,28 @@
 #include <iostream>
 #include "TextureManager.h"
 
-GameSession::GameSession(Renderer& renderer, int screenW, int screenH) {
+struct DifficultyParams {
+    float enemyCountMultiplier;
+    float spawnIntervalMultiplier;
+};
+
+DifficultyParams getDifficultyParams(Difficulty d)
+{
+    switch (d)
+    {
+        case Difficulty::Easy:
+            return { 0.7f, 1.25f }; // fewer enemies, slower spawns
+
+        case Difficulty::Hard:
+            return { 1.3f, 0.8f }; // more enemies, faster spawns
+
+        case Difficulty::Medium:
+        default:
+            return { 1.0f, 1.0f }; // Default
+    }
+}
+
+GameSession::GameSession(Renderer& renderer, int screenW, int screenH, Difficulty diff) : difficulty(diff) {
     initWorld(renderer, screenW);
 
     zBuffer = new float[screenW];
@@ -30,51 +51,77 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH) {
     waves.push_back({
         6.0f, // spawn interval
         {
-            EnemyType::Base, EnemyType::Tank, EnemyType::Shooter, EnemyType::Fast,
-            EnemyType::Base, EnemyType::Fast, EnemyType::Base, EnemyType::Base,
+            EnemyType::Base, EnemyType::Base, EnemyType::Base, EnemyType::Fast,
             EnemyType::Base, EnemyType::Fast
         }
     });
 
     // Wave 2
     waves.push_back({
-        4.0f, // spawn interval
+        5.0f, // spawn interval
         {
-            EnemyType::Base, EnemyType::Fast, EnemyType::Base, EnemyType::Base,
-            EnemyType::Base, EnemyType::Fast, EnemyType::Base, EnemyType::Base,
-            EnemyType::Shooter, EnemyType::Base, EnemyType::Base, EnemyType::Shooter,
+            EnemyType::Base, EnemyType::Fast, EnemyType::Base, EnemyType::Fast, 
+            EnemyType::Base, EnemyType::Shooter, EnemyType::Base, EnemyType::Shooter,
         }
     });
 
     // Wave 3
     waves.push_back({
-        4.0f, // spawn interval
+        5.0f, // spawn interval
         {
-            EnemyType::Base, EnemyType::Shooter, EnemyType::Fast, EnemyType::Base,
-            EnemyType::Base, EnemyType::Fast, EnemyType::Shooter, EnemyType::Base,
-            EnemyType::Shooter, EnemyType::Base, EnemyType::Base, EnemyType::Base,
-            EnemyType::Base, EnemyType::Fast, EnemyType::Base, EnemyType::Base
+            EnemyType::Base, EnemyType::Shooter, EnemyType::Fast, EnemyType::Fast, 
+            EnemyType::Shooter, EnemyType::Base, EnemyType::Shooter, EnemyType::Base, 
+            EnemyType::Base, EnemyType::Fast
         }
     });  
 
     // Wave 4
     waves.push_back({
-        4.0f, // spawn interval
+        5.0f, // spawn interval
         {
-            EnemyType::Base, EnemyType::Shooter, EnemyType::Base, EnemyType::Shooter,
-            EnemyType::Shooter, EnemyType::Fast, EnemyType::Base, EnemyType::Shooter,
-            EnemyType::Base, EnemyType::Fast, EnemyType::Base, EnemyType::Shooter,
-            EnemyType::Fast, EnemyType::Base, EnemyType::Shooter, EnemyType::Fast
+            EnemyType::Fast, EnemyType::Shooter, EnemyType::Base, EnemyType::Shooter,
+            EnemyType::Shooter, EnemyType::Base, EnemyType::Shooter, EnemyType::Base,
+            EnemyType::Shooter, EnemyType::Fast, EnemyType::Shooter, EnemyType::Fast
         }
     });
 
     // Wave 5
     waves.push_back({
-        3.0f, // spawn interval
+        5.0f, // spawn interval
         {
-            EnemyType::Tank, EnemyType::Tank, EnemyType::Tank, EnemyType::Tank
+            EnemyType::Tank, EnemyType::Tank, EnemyType::Tank
         }
     });
+
+    DifficultyParams params = getDifficultyParams(difficulty);
+
+    for (auto& wave : waves)
+    {
+        // Scale spawn rate
+        wave.spawnInterval *= params.spawnIntervalMultiplier;
+
+        // Scale enemy count
+        int originalCount = static_cast<int>(wave.enemies.size());
+        int targetCount =
+            static_cast<int>(std::round(originalCount * params.enemyCountMultiplier));
+
+        targetCount = std::max(1, targetCount);
+
+        if (targetCount > originalCount)
+        {
+            // Add more enemies by repeating existing ones
+            while (wave.enemies.size() < static_cast<size_t>(targetCount))
+            {
+                wave.enemies.push_back(
+                    wave.enemies[rand() % originalCount]
+                );
+            }
+        }
+        else if (targetCount < originalCount)
+        {
+            wave.enemies.resize(targetCount);
+        }
+    }
 
     // Initialize enemy assets
     enemyManager.loadEnemyAssets();
@@ -82,11 +129,9 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH) {
     // Init pickup assets
     pickupManager.loadPickupAssets();
 
-    //pickupManager.addPickup(23.5f, 2.5f, 0.0f, PickupType::Health, WeaponType::None);
+    pickupManager.addPickup(23.5f, 2.5f, 0.0f, PickupType::Health, WeaponType::None);
 
     pickupManager.addPickup(5.5f, 2.5f, 0.0f, PickupType::Weapon, WeaponType::Pistol);
-
-    pickupManager.addPickup(23.5f, 2.5f, 0.0f, PickupType::Weapon, WeaponType::Shotgun);
 
     doomRenderer->setPickupManager(pickupManager);
 

@@ -21,21 +21,21 @@ void Enemy::activate(int tx, int ty, EnemyType t, EnemyManager& manager) {
 
     switch (type) {
         case EnemyType::Base: speed = 1.4f; break;
-        case EnemyType::Fast: speed = 2.25f; break;
+        case EnemyType::Fast: speed = 2.15f; break;
         case EnemyType::Tank: speed = 1.1f; break;
         case EnemyType::Shooter: speed = 1.25f; break;
     }
 
     switch (type) {
     case EnemyType::Base:
-        attackDamage = 20;
+        attackDamage = 25;
         attackRange = 0.8f;
         attackCooldown = 1.2f;
         attackHitFrame = 2;
         break;
 
     case EnemyType::Fast:
-        attackDamage = 30;
+        attackDamage = 15;
         attackRange = 0.7f;
         attackCooldown = 0.6f;
         attackHitFrame = 1;
@@ -43,7 +43,7 @@ void Enemy::activate(int tx, int ty, EnemyType t, EnemyManager& manager) {
 
     case EnemyType::Tank:
         attackDamage = 75;
-        attackRange = 0.9f;
+        attackRange = 0.8f;
         attackCooldown = 3.0f;
         attackHitFrame = 3;
         break;

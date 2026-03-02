@@ -11,6 +11,7 @@ enum class BulletHoleType {
 struct BulletHole {
     int tileX;
     int tileY;
+    float holeZ;
     GridSegment::Dir dir;   // which face was hit
     float hitFraction;      // normalized along wall
     float lifetime;
@@ -29,7 +30,7 @@ class BulletHoleManager
 public:
     bool loadVisual(BulletHoleType type, const std::string& path);
     void update(float dt);
-    void spawn(int tileX, int tileY, GridSegment::Dir dir, float hitFraction, BulletHoleType type);
+    void spawn(int tileX, int tileY, float playerZ, GridSegment::Dir dir, float hitFraction, BulletHoleType type);
 
     const std::vector<BulletHole>& getAll() const;
     const BulletHoleVisual& getVisual(BulletHoleType type) const;

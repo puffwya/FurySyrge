@@ -51,6 +51,7 @@ void BulletHoleManager::update(float dt) {
 void BulletHoleManager::spawn(
     int tileX,
     int tileY,
+    float playerZ,
     GridSegment::Dir dir,
     float hitFraction,
     BulletHoleType type
@@ -58,6 +59,7 @@ void BulletHoleManager::spawn(
     BulletHole hole;
     hole.tileX = tileX;
     hole.tileY = tileY;
+    hole.holeZ = playerZ;
     hole.dir = dir;
     hole.hitFraction = hitFraction;
     hole.lifetime = maxLifetime;

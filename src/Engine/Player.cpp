@@ -679,6 +679,7 @@ void Player::shoot(EnemyManager& manager, WeaponManager& weaponManager, Map& map
                     bulletHoleManager.spawn(
                         wallHit.tileX,
                         wallHit.tileY,
+                        z,
                         face,
                         correctedFraction,
                         BulletHoleType::Pistol
@@ -688,6 +689,7 @@ void Player::shoot(EnemyManager& manager, WeaponManager& weaponManager, Map& map
                     bulletHoleManager.spawn(
                         wallHit.tileX,
                         wallHit.tileY,
+                        z,
                         face,
                         correctedFraction,
                         BulletHoleType::Shotgun

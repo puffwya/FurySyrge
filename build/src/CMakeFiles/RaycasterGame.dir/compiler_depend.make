@@ -4623,6 +4623,7 @@ src/CMakeFiles/RaycasterGame.dir/Engine/GameSession.cpp.o: /Users/wyattpuff/Rayc
   /Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/stdint.h \
   /Users/wyattpuff/Raycaster/src/third_party/miniaudio.h \
   /Users/wyattpuff/Raycaster/src/audio/AudioManager.h \
+  /Users/wyattpuff/Raycaster/src/settings/GameSettings.h \
   /Users/wyattpuff/Raycaster/src/Engine/BSP.h \
   /Users/wyattpuff/Raycaster/src/Engine/BulletHoleManager.h \
   /Users/wyattpuff/Raycaster/src/Engine/DoomRenderer.h \
@@ -16933,6 +16934,7 @@ src/CMakeFiles/RaycasterGame.dir/main.cpp.o: /Users/wyattpuff/Raycaster/src/main
   /Library/Developer/CommandLineTools/usr/lib/clang/14.0.3/include/stdint.h \
   /Users/wyattpuff/Raycaster/src/third_party/miniaudio.h \
   /Users/wyattpuff/Raycaster/src/audio/AudioManager.h \
+  /Users/wyattpuff/Raycaster/src/settings/GameSettings.h \
   /Users/wyattpuff/Raycaster/src/Engine/BSP.h \
   /Users/wyattpuff/Raycaster/src/Engine/BulletHoleManager.h \
   /Users/wyattpuff/Raycaster/src/Engine/DoomRenderer.h \

@@ -12,6 +12,7 @@
 #include "BSP.h"
 #include "DoomRenderer.h"
 #include "GameState.h"
+#include "../settings/GameSettings.h"
 
 #include <memory>
 #include <vector>
@@ -41,7 +42,7 @@ struct WallHeightAnim {
 
 class GameSession {
 public:
-    GameSession(Renderer& renderer, int screenW, int screenH);
+    GameSession(Renderer& renderer, int screenW, int screenH, Difficulty diff);
     ~GameSession();
 
     void update(float dt, const Uint8* keys, GameState& gameState, AudioManager& audio);
@@ -56,6 +57,8 @@ public:
     // Core gameplay state
     Player player;
     EnemyManager enemyManager;
+
+    Difficulty difficulty;
 
 private:
     // Core gameplay state
