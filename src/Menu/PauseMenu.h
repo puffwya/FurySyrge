@@ -2,11 +2,12 @@
 #include <SDL2/SDL.h>
 #include <string>
 #include "../Engine/GameState.h"
+#include "../audio/AudioManager.h"
 
 class PauseMenu {
 public:
     bool init(SDL_Renderer* renderer, int screenW, int screenH);
-    void handleInput(const SDL_Event& e, GameState& gs, bool& running);
+    void handleInput(const SDL_Event& e, GameState& gs, bool& running, AudioManager& audio);
     void updateCursor();
     void activateSelected(GameState& gs, bool& running);
     void render(SDL_Renderer* renderer);

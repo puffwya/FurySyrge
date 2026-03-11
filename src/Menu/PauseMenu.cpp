@@ -3,13 +3,11 @@
 #include <iostream>
 
 // Texture Loader helper
-SDL_Texture* PauseMenu::loadTexture(SDL_Renderer* renderer,
-                                     const std::string& path)
+SDL_Texture* PauseMenu::loadTexture(SDL_Renderer* renderer, const std::string& path)
 {
     SDL_Surface* surface = IMG_Load(path.c_str());
     if (!surface) {
-        std::cerr << "Failed to load: " << path
-                  << " | SDL_image error: " << IMG_GetError() << "\n";
+        std::cerr << "Failed to load: " << path << " | SDL_image error: " << IMG_GetError() << "\n";
         return nullptr;
     }
 
@@ -73,10 +71,8 @@ bool PauseMenu::init(SDL_Renderer* renderer, int w, int h)
     int startY = static_cast<int>(screenH * 0.45f);
 
     setupButton(startTexture, startRect, startY);
-    setupButton(optionsTexture, optionsRect,
-                startRect.y + startRect.h + buttonGap);
-    setupButton(quitTexture, quitRect,
-                optionsRect.y + optionsRect.h + buttonGap);
+    setupButton(optionsTexture, optionsRect, startRect.y + startRect.h + buttonGap);
+    setupButton(quitTexture, quitRect, optionsRect.y + optionsRect.h + buttonGap);
 
     menuRects[MENU_START] = startRect;
     menuRects[MENU_OPTIONS] = optionsRect;
@@ -95,26 +91,25 @@ bool PauseMenu::init(SDL_Renderer* renderer, int w, int h)
 }
 
 // Input
-void PauseMenu::handleInput(const SDL_Event& e,
-                            GameState& gs,
-                            bool& running)
+void PauseMenu::handleInput(const SDL_Event& e, GameState& gs, bool& running, AudioManager& audio)
 {
     if (e.type != SDL_KEYDOWN) return;
 
     switch (e.key.keysym.sym)
     {
         case SDLK_UP:
-            selectedIndex =
-                (selectedIndex - 1 + MENU_COUNT) % MENU_COUNT;
+            selectedIndex = (selectedIndex - 1 + MENU_COUNT) % MENU_COUNT;
+            audio.playSFX("menu_up");
             break;
 
         case SDLK_DOWN:
-            selectedIndex =
-                (selectedIndex + 1) % MENU_COUNT;
+            selectedIndex = (selectedIndex + 1) % MENU_COUNT;
+            audio.playSFX("menu_up");
             break;
 
         case SDLK_RETURN:
             activateSelected(gs, running);
+            audio.playSFX("menu_enter");
             break;
 
         default:
@@ -130,13 +125,11 @@ void PauseMenu::updateCursor()
     const SDL_Rect& target = menuRects[selectedIndex];
 
     cursorRect.x = target.x + target.w + 12;
-    cursorRect.y = target.y + (target.h / 2)
-                 - (cursorRect.h / 2);
+    cursorRect.y = target.y + (target.h / 2) - (cursorRect.h / 2);
 }
 
 // Selection Logic
-void PauseMenu::activateSelected(GameState& gs,
-                                 bool& running)
+void PauseMenu::activateSelected(GameState& gs, bool& running)
 {
     switch (selectedIndex)
     {

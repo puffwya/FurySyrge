@@ -41,6 +41,9 @@ int main() {
     AudioManager audio;
     audio.init();
 
+    audio.loadSFX("menu_up", "Assets/audio/menu_up.mp3");
+    audio.loadSFX("menu_enter", "Assets/audio/menu_enter.mp3");
+
     audio.loadSFX("lvlEnd_wordsCollide", "Assets/audio/lvlEnd_wordsCollide.mp3");
     audio.loadSFX("GameOverOOF", "Assets/audio/GameOverOOF.mp3");
 
@@ -170,7 +173,7 @@ int main() {
                         mainRun = false;
                     }
 
-                    mainMenu.handleInput(e, gameState, running, mainRun, difficulty);
+                    mainMenu.handleInput(e, gameState, running, mainRun, difficulty, audio);
                 }
 
                 // Start game and create new game session
@@ -318,7 +321,7 @@ int main() {
                             running = false;
                             mainRun = false;
                         }
-                        pauseMenu.handleInput(e, gameState, running);
+                        pauseMenu.handleInput(e, gameState, running, audio);
                     }
 
                     // Exit to menu, destroy current game session

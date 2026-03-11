@@ -3,6 +3,7 @@
 #include <vector>
 #include "../Engine/GameState.h"
 #include "../settings/GameSettings.h"
+#include "../audio/AudioManager.h"
 
 struct AshParticle {
     float x, y;
@@ -15,7 +16,7 @@ struct AshParticle {
 class MainMenu {
 public:
     bool init(SDL_Renderer* renderer, int screenW, int screenH);
-    void handleInput(const SDL_Event& e, GameState& gs, bool& running, bool& mRunning, Difficulty& difficulty);
+    void handleInput(const SDL_Event& e, GameState& gs, bool& running, bool& mRunning, Difficulty& difficulty, AudioManager& audio);
     void updateCursor(float dt);
     void activateSelected(GameState& gs, bool& running, bool& mRunning, Difficulty& difficulty);
     void render(SDL_Renderer* renderer, Difficulty& difficulty);

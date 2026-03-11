@@ -636,7 +636,7 @@ void Player::shoot(EnemyManager& manager, WeaponManager& weaponManager, Map& map
             // Apply damage
             int damage = 0;
             if (currentItem == ItemType::Pistol) damage = 50;
-            else if (currentItem == ItemType::Shotgun) damage = 200;
+            else if (currentItem == ItemType::Shotgun) damage = 250;
             else if (currentItem == ItemType::Mg) damage = 25;
 
             shotsHit += 1;

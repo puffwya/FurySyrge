@@ -761,6 +761,8 @@ src/CMakeFiles/RaycasterGame.dir/Menu/PauseMenu.cpp.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__functional/pointer_to_unary_function.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__functional/unary_negate.h \
   /Users/wyattpuff/Raycaster/src/Menu/../Engine/GameState.h \
+  /Users/wyattpuff/Raycaster/src/Menu/../audio/AudioManager.h \
+  /Users/wyattpuff/Raycaster/src/Menu/../audio/../third_party/miniaudio.h \
   /opt/homebrew/include/SDL2/SDL_image.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/iostream \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/ios \

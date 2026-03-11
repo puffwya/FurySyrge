@@ -134,7 +134,7 @@ bool MainMenu::init(SDL_Renderer* renderer, int w, int h)
 }
 
 void MainMenu::handleInput(const SDL_Event& e, GameState& gs,
-                           bool& running, bool& mRunning, Difficulty& difficulty)
+                           bool& running, bool& mRunning, Difficulty& difficulty, AudioManager& audio)
 {
     if (e.type != SDL_KEYDOWN) return;
 
@@ -143,14 +143,17 @@ void MainMenu::handleInput(const SDL_Event& e, GameState& gs,
         {
             case SDLK_UP:
                 selectedIndexOptions = (selectedIndexOptions - 1 + OPTIONS_COUNT) % OPTIONS_COUNT;
+                audio.playSFX("menu_up");
                 break;
     
             case SDLK_DOWN:
                 selectedIndexOptions = (selectedIndexOptions + 1) % OPTIONS_COUNT;
+                audio.playSFX("menu_up");
                 break;
     
             case SDLK_RETURN:
                 activateSelected(gs, running, mRunning, difficulty);
+                audio.playSFX("menu_enter");
                 break;
     
             default:
@@ -162,14 +165,17 @@ void MainMenu::handleInput(const SDL_Event& e, GameState& gs,
         {
             case SDLK_UP:
                 selectedIndex = (selectedIndex - 1 + MENU_COUNT) % MENU_COUNT;
+                audio.playSFX("menu_up");
                 break;
 
             case SDLK_DOWN:
                 selectedIndex = (selectedIndex + 1) % MENU_COUNT;
+                audio.playSFX("menu_up");
                 break;
 
             case SDLK_RETURN:
                 activateSelected(gs, running, mRunning, difficulty);
+                audio.playSFX("menu_enter");
                 break;
 
             default:
