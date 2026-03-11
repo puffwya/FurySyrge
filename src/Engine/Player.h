@@ -86,6 +86,16 @@ public:
     // Footstep sfx
     float footstepTimer = 0.0f;
 
+    // Player bob vars
+    float bobPhase = 0.0f;
+    float bobOffset = 0.0f;
+    float smoothSpeed = 0.0f;
+    const float MAX_BOB = 0.1f;
+    const float STEP_FREQ = 18.0f;
+    const float SPEED_SMOOTH = 4.0f;
+    const float BOB_SMOOTH = 10.0f;
+    float baseZ;
+
     int lastChunkID;
 
     Player(float startX = 14.5f, float startY = 2.5f, float startZ = 0.5f, float startAngle = 0.0f)

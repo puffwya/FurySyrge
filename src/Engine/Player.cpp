@@ -222,7 +222,7 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
     else {
         onGround = true;
         velZ = 0.0f;
-        z = 0.5f + map.get(int(x), int(y)).height;
+        baseZ = 0.5f + map.get(int(x), int(y)).height;
     }
 
     // Clamp max speed
@@ -236,6 +236,8 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
     float newX = x + velX * delta;
     float newY = y + velY * delta;
 
+    const float FLOOR_EPSILON = 0.1f; // tolerance so head bob doesn't trigger falling
+
     // Collision X-axis
     int tx = int(std::floor(newX));
     int ty = int(std::floor(y));
@@ -247,7 +249,11 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
         x = newX;
 
         // Update player z to 0.5 greater than tile height
-        if (z != 0.5 + tileX.height && onGround) {
+        float targetZ = 0.5f + tileX.height;
+        float diff = z - targetZ;
+
+        // Update player z to 0.5 greater than tile height
+        if (onGround && std::fabs(diff) > FLOOR_EPSILON) {
             onGround = false;
 
             // Gradually move z toward targetZ
@@ -284,7 +290,11 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
         y = newY;
 
         // Update player z to 0.5 greater than tile height
-        if (z != 0.5 + tileY.height && onGround) {
+        float targetZ = 0.5f + tileY.height;
+        float diff = z - targetZ;
+
+        // Update player z to 0.5 greater than tile height
+        if (onGround && std::fabs(diff) > FLOOR_EPSILON) {
             onGround = false;
     
             // Gradually move z toward targetZ
@@ -340,6 +350,28 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
     if (angle < 0) angle += 2*M_PI;
     if (angle >= 2*M_PI) angle -= 2*M_PI;
 
+    // player bob
+    float rawSpeed = std::min(speedNow / MAX_SPEED, 1.0f);
+
+    // Smooth the speed signal
+    smoothSpeed += (rawSpeed - smoothSpeed) * SPEED_SMOOTH * delta;
+
+    // Advance phase based on movement speed
+    bobPhase += delta * STEP_FREQ * smoothSpeed;
+
+    // Amplitude scales with movement speed
+    float bobAmplitude = MAX_BOB * smoothSpeed;
+
+    // Calculate bob (never below baseZ)
+    float targetBob = pow(std::max(0.0f, sin(bobPhase)), 1.5f) * bobAmplitude;
+
+    // Smooth bob motion
+    bobOffset += (targetBob - bobOffset) * (1 - std::exp(-BOB_SMOOTH * delta));
+
+    // Apply
+    if (onGround)
+        z = baseZ + bobOffset;
+
     // Pause Handling
     if (keys[SDL_SCANCODE_P] && gs != GameState::LevelEnd) {
         gs = GameState::Paused;
@@ -370,85 +402,88 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
 
     // Handle shooting
     
-    // Pistol shooting
-    if (currentItem == ItemType::Pistol) {
+    if (!reloading) {
 
-        Uint32 mouseState = SDL_GetMouseState(nullptr, nullptr);
+        // Pistol shooting
+        if (currentItem == ItemType::Pistol) {
+
+            Uint32 mouseState = SDL_GetMouseState(nullptr, nullptr);
         
-        bool leftMouseDown = mouseState & SDL_BUTTON(SDL_BUTTON_LEFT);
+            bool leftMouseDown = mouseState & SDL_BUTTON(SDL_BUTTON_LEFT);
 
-        if (leftMouseDown && fireCooldown <= 0.0f) {
-            if (weapon.pClipAmmo <= 0) {
-                weapon.pClipAmmo = 0;
-                audio.playSFX("gun_click");
-                fireCooldown = 0.75f;
-            }
-            else {
-                shoot(enemyManager, weaponManager, map, bulletHoleManager);
-                fireCooldown = 0.75f; // pistol fires once every 0.75 seconds
+            if (leftMouseDown && fireCooldown <= 0.0f) {
+                if (weapon.pClipAmmo <= 0) {
+                    weapon.pClipAmmo = 0;
+                    audio.playSFX("gun_click");
+                    fireCooldown = 0.75f;
+                }
+                else {
+                    shoot(enemyManager, weaponManager, map, bulletHoleManager);
+                    fireCooldown = 0.75f; // pistol fires once every 0.75 seconds
 
-                // Start animation
-                isFiringAnim = true;
-                fireFrame = 0;
-                fireFrameTimer = FIRE_FRAME_DURATION;
-                audio.playSFX("pistol_shoot", 0.6f);
-                weapon.pClipAmmo -= 1;
-            }
-        }
-    }
-
-    // Shotgun shooting
-    if (currentItem == ItemType::Shotgun) {
-
-        Uint32 mouseState = SDL_GetMouseState(nullptr, nullptr);
-
-        bool leftMouseDown = mouseState & SDL_BUTTON(SDL_BUTTON_LEFT);
-
-        if (leftMouseDown && fireCooldown <= 0.0f) {
-            if (weapon.sClipAmmo <= 0) {
-                weapon.sClipAmmo = 0;
-                audio.playSFX("gun_click");
-                fireCooldown = 0.75f;
-            }
-            else {
-                shoot(enemyManager, weaponManager, map, bulletHoleManager);
-                fireCooldown = 0.75f; // Shotgun fires once every 0.75 seconds
-
-                // Start animation
-                isFiringAnim = true;
-                fireFrame = 0;
-                fireFrameTimer = FIRE_FRAME_DURATION;
-                audio.playSFX("shotgun_shoot");
-                weapon.sClipAmmo -= 2;
+                    // Start animation
+                    isFiringAnim = true;
+                    fireFrame = 0;
+                    fireFrameTimer = FIRE_FRAME_DURATION;
+                    audio.playSFX("pistol_shoot", 0.6f);
+                    weapon.pClipAmmo -= 1;
+                }
             }
         }
-    }
 
-    // Mg shooting
-    if (currentItem == ItemType::Mg) {
-                
-        Uint32 mouseState = SDL_GetMouseState(nullptr, nullptr);
-                
-        bool leftMouseDown = mouseState & SDL_BUTTON(SDL_BUTTON_LEFT);
-                
-        if (leftMouseDown && fireCooldown <= 0.0f) {
-            if (weapon.mgClipAmmo <= 0) {
-                weapon.mgClipAmmo = 0;
-                audio.playSFX("gun_click");
-                fireCooldown = 0.7f;
+        // Shotgun shooting
+        if (currentItem == ItemType::Shotgun) {
+
+            Uint32 mouseState = SDL_GetMouseState(nullptr, nullptr);
+
+            bool leftMouseDown = mouseState & SDL_BUTTON(SDL_BUTTON_LEFT);
+
+            if (leftMouseDown && fireCooldown <= 0.0f) {
+                if (weapon.sClipAmmo <= 0) {
+                    weapon.sClipAmmo = 0;
+                    audio.playSFX("gun_click");
+                    fireCooldown = 0.75f;
+                }
+                else {
+                    shoot(enemyManager, weaponManager, map, bulletHoleManager);
+                    fireCooldown = 0.75f; // Shotgun fires once every 0.75 seconds
+
+                    // Start animation
+                    isFiringAnim = true;
+                    fireFrame = 0;
+                    fireFrameTimer = FIRE_FRAME_DURATION;
+                    audio.playSFX("shotgun_shoot");
+                    weapon.sClipAmmo -= 2;
+                }
             }
-            else {
-                shoot(enemyManager, weaponManager, map, bulletHoleManager);
-                fireCooldown = 0.1f; // Mg fires once every 0.1 seconds
+        }
+
+        // Mg shooting
+        if (currentItem == ItemType::Mg) {
+                
+            Uint32 mouseState = SDL_GetMouseState(nullptr, nullptr);
+                
+            bool leftMouseDown = mouseState & SDL_BUTTON(SDL_BUTTON_LEFT);
+        
+            if (leftMouseDown && fireCooldown <= 0.0f) {
+                if (weapon.mgClipAmmo <= 0) {
+                    weapon.mgClipAmmo = 0;
+                    audio.playSFX("gun_click");
+                    fireCooldown = 0.7f;
+                }
+                else {
+                    shoot(enemyManager, weaponManager, map, bulletHoleManager);
+                    fireCooldown = 0.1f; // Mg fires once every 0.1 seconds
              
-                // Start animation
-                isFiringAnim = true;
-                fireFrame = 0;  
-                fireFrameTimer = 0.01;
-                audio.playSFX("mg_shoot");
-                weapon.mgClipAmmo -= 1;
-            }
-        }    
+                    // Start animation
+                    isFiringAnim = true;
+                    fireFrame = 0;  
+                    fireFrameTimer = 0.01;
+                    audio.playSFX("mg_shoot");
+                    weapon.mgClipAmmo -= 1;
+                }
+            }    
+        }
     }
 
     // Reload guns
@@ -594,8 +629,15 @@ void Player::shoot(EnemyManager& manager, WeaponManager& weaponManager, Map& map
     // Keep track of shots fired
     shotsFired += 1;
 
-    const float hitWidth = 0.08f;
     const float maxRange = 10.0f;
+
+    float hitWidth = 0.0f;
+    switch(currentItem) {
+        case ItemType::Pistol: hitWidth = 0.15f; break;
+        case ItemType::Mg: hitWidth = 0.15f; break;
+        case ItemType::Shotgun: hitWidth = 0.25f; break;
+        default: hitWidth = 0.15; break;
+    }
 
     WeaponType wt = itemToWeapon(currentItem);
 
@@ -628,9 +670,10 @@ void Player::shoot(EnemyManager& manager, WeaponManager& weaponManager, Map& map
 
         if (transformY <= 0) continue;
 
-        float lateral = transformX / transformY;
+        // World-space perpendicular distance from shot line
+        float perpDist = std::abs(dy * dirX - dx * dirY);
 
-        if (std::fabs(lateral) < hitWidth) {
+        if (perpDist < hitWidth) {
             if (!e.hasLineOfSight(*this, map)) continue;
 
             // Apply damage
