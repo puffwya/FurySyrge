@@ -1,63 +1,62 @@
+#include "../third_party/stb_image_wrapper.h"
 #include "WeaponManager.h"
 #include "Player.h"
 #include <cmath>
 #include <iostream>
+#include <vector>
+
+// Helper function: load PNG via wrapper and create SDL_Texture
+SDL_Texture* LoadTextureFromFile(SDL_Renderer* renderer, const char* path) {
+    // Load surface using wrapper
+    SDL_Surface* surface = LoadSurfaceFromPNG(path);
+    if (!surface) {
+        std::cerr << "Failed to load image: " << path << "\n";
+        return nullptr;
+    }
+
+    // Create SDL_Texture from surface
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+    if (!texture) {
+        std::cerr << "Failed to create texture for: " << path
+                  << " | " << SDL_GetError() << "\n";
+    }
+
+    // Free surface (also frees underlying pixel buffer)
+    FreeSurface(surface);
+
+    return texture;
+}
 
 bool WeaponManager::loadAssets(SDL_Renderer* renderer) {
 
-    // load pistol frames
+    // Load pistol frames
     Animation pistolAnim;
-
     const char* pistolPaths[] = {
-        "Assets/Pistol0.png",
-        "Assets/Pistol1.png",
-        "Assets/Pistol2.png",
-        "Assets/Pistol3.png",
-        "Assets/Pistol4.png",
-        "Assets/Pistol5.png",
-        "Assets/Pistol6.png",
-        "Assets/Pistol7.png",
-        "Assets/Pistol8.png",
-        "Assets/Pistol9.png",
-        "Assets/Pistol10.png",
-        "Assets/Pistol11.png",
+        "Assets/Pistol0.png", "Assets/Pistol1.png", "Assets/Pistol2.png",
+        "Assets/Pistol3.png", "Assets/Pistol4.png", "Assets/Pistol5.png",
+        "Assets/Pistol6.png", "Assets/Pistol7.png", "Assets/Pistol8.png",
+        "Assets/Pistol9.png", "Assets/Pistol10.png", "Assets/Pistol11.png",
         "Assets/Pistol12.png"
     };
-
     for (const char* path : pistolPaths) {
-        SDL_Texture* tex = IMG_LoadTexture(renderer, path);
-        if (!tex) {
-            std::cerr << "Failed to load pistol frame: " 
-                      << path << " | " << IMG_GetError() << "\n";
-            return false;
-        }
+        SDL_Texture* tex = LoadTextureFromFile(renderer, path);
+        if (!tex) return false;
         pistolAnim.frames.push_back(tex);
     }
-    pistolAnim.frameTime = 0.09f; // <90ms
+    pistolAnim.frameTime = 0.09f;
     animations[WeaponType::Pistol] = pistolAnim;
 
     // Load shotgun frames
     Animation shotgunAnim;
     const char* shotgunPaths[] = {
-        "Assets/Shotgun0.png",
-        "Assets/Shotgun1.png",
-        "Assets/Shotgun2.png",
-        "Assets/Shotgun3.png",
-        "Assets/Shotgun4.png",
-        "Assets/Shotgun5.png",
-        "Assets/Shotgun6.png",
-        "Assets/Shotgun7.png",
-        "Assets/Shotgun8.png",
-        "Assets/Shotgun9.png",
-        "Assets/Shotgun10.png"
+        "Assets/Shotgun0.png", "Assets/Shotgun1.png", "Assets/Shotgun2.png",
+        "Assets/Shotgun3.png", "Assets/Shotgun4.png", "Assets/Shotgun5.png",
+        "Assets/Shotgun6.png", "Assets/Shotgun7.png", "Assets/Shotgun8.png",
+        "Assets/Shotgun9.png", "Assets/Shotgun10.png"
     };
     for (const char* path : shotgunPaths) {
-        SDL_Texture* tex = IMG_LoadTexture(renderer, path);
-        if (!tex) {
-            std::cerr << "Failed to load shotgun frame: " << path
-                      << " | " << IMG_GetError() << "\n";
-            return false;
-        }
+        SDL_Texture* tex = LoadTextureFromFile(renderer, path);
+        if (!tex) return false;
         shotgunAnim.frames.push_back(tex);
     }
     shotgunAnim.frameTime = 0.14f;
@@ -66,30 +65,14 @@ bool WeaponManager::loadAssets(SDL_Renderer* renderer) {
     // Load MG frames
     Animation mgAnim;
     const char* mgPaths[] = {
-        "Assets/Mg0.png",
-        "Assets/Mg1.png",
-        "Assets/Mg2.png",
-        "Assets/Mg3.png",
-        "Assets/Mg4.png",
-        "Assets/Mg5.png",
-        "Assets/Mg6.png",
-        "Assets/Mg7.png",
-        "Assets/Mg8.png",
-        "Assets/Mg9.png",
-        "Assets/Mg10.png",
-        "Assets/Mg11.png",
-        "Assets/Mg12.png",
-        "Assets/Mg13.png",
-        "Assets/Mg14.png",
-        "Assets/Mg15.png",
+        "Assets/Mg0.png", "Assets/Mg1.png", "Assets/Mg2.png", "Assets/Mg3.png",
+        "Assets/Mg4.png", "Assets/Mg5.png", "Assets/Mg6.png", "Assets/Mg7.png",
+        "Assets/Mg8.png", "Assets/Mg9.png", "Assets/Mg10.png", "Assets/Mg11.png",
+        "Assets/Mg12.png", "Assets/Mg13.png", "Assets/Mg14.png", "Assets/Mg15.png"
     };
     for (const char* path : mgPaths) {
-        SDL_Texture* tex = IMG_LoadTexture(renderer, path);
-        if (!tex) {
-            std::cerr << "Failed to load mg frame: " << path
-                      << " | " << IMG_GetError() << "\n";  
-            return false;
-        }
+        SDL_Texture* tex = LoadTextureFromFile(renderer, path);
+        if (!tex) return false;
         mgAnim.frames.push_back(tex);
     }
     mgAnim.frameTime = 0.01f;

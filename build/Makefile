@@ -117,17 +117,17 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named RaycasterGame
+# Target rules for targets named FurySyrge
 
 # Build rule for target.
-RaycasterGame: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 RaycasterGame
-.PHONY : RaycasterGame
+FurySyrge: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 FurySyrge
+.PHONY : FurySyrge
 
 # fast build rule for target.
-RaycasterGame/fast:
-	$(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/build
-.PHONY : RaycasterGame/fast
+FurySyrge/fast:
+	$(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/build
+.PHONY : FurySyrge/fast
 
 # Help Target
 help:
@@ -137,7 +137,7 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... RaycasterGame"
+	@echo "... FurySyrge"
 .PHONY : help
 
 

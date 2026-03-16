@@ -12,7 +12,6 @@
 #include "audio/AudioManager.h"
 
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
 #include <iostream>
 #include <memory>
 
@@ -95,12 +94,6 @@ int main() {
     textures.load("wallDoor", "Assets/geometry_textures/wallDoor.png");
     textures.load("lava1", "Assets/geometry_textures/lava1.png");
     textures.load("wallTop1", "Assets/geometry_textures/wallTop1.png");
-
-    // SDL_image init
-    if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)) {
-        std::cerr << "IMG_Init error: " << IMG_GetError() << std::endl;
-        return -1;
-    }
 
     uint32_t* pixels = new uint32_t[SCREEN_WIDTH * SCREEN_HEIGHT];
 
@@ -378,7 +371,6 @@ int main() {
     }
     delete[] pixels;
     audio.shutdown();
-    IMG_Quit();
     studioIntro.cleanup();
     return 0;
 }

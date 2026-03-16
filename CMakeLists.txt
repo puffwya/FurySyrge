@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(RaycasterGame LANGUAGES CXX)
+project(FurySyrge LANGUAGES CXX)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 20)

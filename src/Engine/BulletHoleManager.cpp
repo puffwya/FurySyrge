@@ -1,15 +1,15 @@
 #include "BulletHoleManager.h"
-#include <SDL2/SDL_image.h>
 #include <iostream>
 #include <cstring>
 #include <cstdlib>
 #include <ctime>
+#include "../third_party/stb_image_wrapper.h"
 
 bool BulletHoleManager::loadVisual(
     BulletHoleType type,
     const std::string& texturePath
 ) {
-    SDL_Surface* surf = IMG_Load(texturePath.c_str());
+    SDL_Surface* surf = LoadSurfaceFromPNG(texturePath.c_str());
     if (!surf) {
         std::cerr << "Failed to load bullet hole texture: "
                   << texturePath << "\n";
@@ -18,7 +18,7 @@ bool BulletHoleManager::loadVisual(
 
     SDL_Surface* formatted =
         SDL_ConvertSurfaceFormat(surf, SDL_PIXELFORMAT_ARGB8888, 0);
-    SDL_FreeSurface(surf);
+    FreeSurface(surf);
     if (!formatted) return false;
 
     BulletHoleVisual visual;
@@ -32,7 +32,7 @@ bool BulletHoleManager::loadVisual(
         visual.w * visual.h * 4
     );
 
-    SDL_FreeSurface(formatted);
+    FreeSurface(formatted);
 
     visuals[type] = std::move(visual);
     return true;

@@ -1,19 +1,27 @@
 #include "HUD.h"
-#include <SDL2/SDL_image.h>
 #include <iostream>
+#include "../third_party/stb_image_wrapper.h"
 
 bool HUD::init(SDL_Renderer* renderer) {
     // Load digits 0-9 + "/"
     for (int i = 0; i < 11; ++i) {
         std::string path = "Assets/pixDigit/pixelDigit-" + std::to_string(i) + ".png";
 
-        SDL_Texture* tex = IMG_LoadTexture(renderer, path.c_str());
-        if (!tex) {
+        SDL_Surface* surface = LoadSurfaceFromPNG(path.c_str());
+        if (!surface) {
             std::cerr << "Failed to load digit " << i
-                      << " from path: " << path
-                      << " | SDL_image error: " << IMG_GetError() << "\n";
+                      << " from path: " << path << "\n";
             return false;
         }
+
+        SDL_Texture* tex = SDL_CreateTextureFromSurface(renderer, surface);
+        SDL_FreeSurface(surface);
+
+        if (!tex) {
+            std::cerr << "Failed to create texture for digit " << i << "\n";
+            return false;
+        }
+
         digitTextures[i] = tex;
     }
 
@@ -23,9 +31,9 @@ bool HUD::init(SDL_Renderer* renderer) {
     }
 
     // Load Wave PNG
-    SDL_Surface* surface = IMG_Load("assets/pixWords/wave.png");
+    SDL_Surface* surface = LoadSurfaceFromPNG("assets/pixWords/wave.png");
     if (!surface) {
-        std::cerr << "Failed to load wave.png: " << IMG_GetError() << std::endl;
+        std::cerr << "Failed to load wave.png\n";
         return false;
     }
     waveTextTexture = SDL_CreateTextureFromSurface(renderer, surface);
@@ -36,9 +44,9 @@ bool HUD::init(SDL_Renderer* renderer) {
     }
 
     // Load Enemies Left PNG
-    surface = IMG_Load("assets/pixWords/enemiesLeft.png");
+    surface = LoadSurfaceFromPNG("assets/pixWords/enemiesLeft.png");
     if (!surface) {
-        std::cerr << "Failed to load enemiesLeft.png: " << IMG_GetError() << std::endl;
+        std::cerr << "Failed to load enemiesLeft.png\n";
         return false;
     }
     enemiesLeftTextTexture = SDL_CreateTextureFromSurface(renderer, surface);
@@ -49,9 +57,9 @@ bool HUD::init(SDL_Renderer* renderer) {
     }
 
     // Load Wave Starting In PNG
-    surface = IMG_Load("assets/pixWords/waveStarting.png"); 
+    surface = LoadSurfaceFromPNG("assets/pixWords/waveStarting.png"); 
     if (!surface) {
-        std::cerr << "Failed to load waveStarting.png: " << IMG_GetError() << std::endl;
+        std::cerr << "Failed to load waveStarting.png\n";
         return false;    
     }
     waveStartingTextTexture = SDL_CreateTextureFromSurface(renderer, surface);

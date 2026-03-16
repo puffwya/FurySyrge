@@ -21,26 +21,23 @@ set(SOURCES
     Engine/GameSession.cpp
     Engine/TextureManager.cpp
     Intro/StudioIntro.cpp
+    third_party/stb_image_wrapper.cpp
 )
 
-add_executable(RaycasterGame ${SOURCES})
+add_executable(FurySyrge ${SOURCES})
 
 # SDL2 include directory
-target_include_directories(RaycasterGame PRIVATE /opt/homebrew/include)
+target_include_directories(FurySyrge PRIVATE /opt/homebrew/include)
 
 # SDL2 libraries (Homebrew)
 find_library(SDL2_LIBRARY SDL2 PATHS /opt/homebrew/lib)
 find_library(SDL2MAIN_LIBRARY SDL2main PATHS /opt/homebrew/lib)
-find_library(SDL2IMAGE_LIBRARY SDL2_image PATHS /opt/homebrew/lib)
 
 if(NOT SDL2_LIBRARY)
     message(FATAL_ERROR "SDL2 library not found. Install with: brew install sdl2")
 endif()
-if(NOT SDL2IMAGE_LIBRARY)
-    message(FATAL_ERROR "SDL2_image library not found. Install with: brew install sdl2_image")
-endif()
 
-target_link_libraries(RaycasterGame PRIVATE ${SDL2_LIBRARY} ${SDL2MAIN_LIBRARY} ${SDL2IMAGE_LIBRARY})
+target_link_libraries(FurySyrge PRIVATE ${SDL2_LIBRARY} ${SDL2MAIN_LIBRARY})
 
 # Define source and destination Assets folder
 set(ASSETS_SRC_DIR "${CMAKE_SOURCE_DIR}/src/Assets")

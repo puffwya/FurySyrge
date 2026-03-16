@@ -22,7 +22,7 @@ CMAKE_AR:FILEPATH=/usr/bin/ar
 
 //Choose the type of build, options are: None Debug Release RelWithDebInfo
 // MinSizeRel ...
-CMAKE_BUILD_TYPE:STRING=
+CMAKE_BUILD_TYPE:STRING=Release
 
 //Enable/Disable color output during build.
 CMAKE_COLOR_MAKEFILE:BOOL=ON
@@ -131,7 +131,7 @@ CMAKE_PROJECT_DESCRIPTION:STATIC=
 CMAKE_PROJECT_HOMEPAGE_URL:STATIC=
 
 //Value Computed by CMake
-CMAKE_PROJECT_NAME:STATIC=RaycasterGame
+CMAKE_PROJECT_NAME:STATIC=FurySyrge
 
 //Value Computed by CMake
 CMAKE_PROJECT_SPDX_LICENSE:STATIC=
@@ -202,16 +202,13 @@ CMAKE_TAPI:FILEPATH=/Library/Developer/CommandLineTools/usr/bin/tapi
 CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE
 
 //Value Computed by CMake
-RaycasterGame_BINARY_DIR:STATIC=/Users/wyattpuff/Raycaster/build
+FurySyrge_BINARY_DIR:STATIC=/Users/wyattpuff/Raycaster/build
 
 //Value Computed by CMake
-RaycasterGame_IS_TOP_LEVEL:STATIC=ON
+FurySyrge_IS_TOP_LEVEL:STATIC=ON
 
 //Value Computed by CMake
-RaycasterGame_SOURCE_DIR:STATIC=/Users/wyattpuff/Raycaster
-
-//Path to a library.
-SDL2IMAGE_LIBRARY:FILEPATH=/opt/homebrew/lib/libSDL2_image.dylib
+FurySyrge_SOURCE_DIR:STATIC=/Users/wyattpuff/Raycaster
 
 //Path to a library.
 SDL2MAIN_LIBRARY:FILEPATH=/opt/homebrew/lib/libSDL2main.a
@@ -238,7 +235,7 @@ CMAKE_CACHE_MAJOR_VERSION:INTERNAL=4
 //Minor version of cmake used to create the current loaded cache
 CMAKE_CACHE_MINOR_VERSION:INTERNAL=2
 //Patch version of cmake used to create the current loaded cache
-CMAKE_CACHE_PATCH_VERSION:INTERNAL=1
+CMAKE_CACHE_PATCH_VERSION:INTERNAL=3
 //ADVANCED property for variable: CMAKE_COLOR_MAKEFILE
 CMAKE_COLOR_MAKEFILE-ADVANCED:INTERNAL=1
 //Path to CMake executable.

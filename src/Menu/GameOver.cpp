@@ -1,23 +1,22 @@
-#include <SDL2/SDL_image.h>
+#include "GameOver.h"
 #include <iostream>
 #include <algorithm>
-#include "GameOver.h"
+#include "../third_party/stb_image_wrapper.h"
 
 SDL_Texture* GameOver::loadTexture(SDL_Renderer* renderer, const std::string& path)
 {
-    SDL_Surface* surface = IMG_Load(path.c_str());
+    SDL_Surface* surface = LoadSurfaceFromPNG(path.c_str());
     if (!surface) {
-        std::cerr << "Failed to load: " << path
-                  << " | SDL_image error: " << IMG_GetError() << "\n";
+        std::cerr << "Failed to load: " << path << "\n";
         return nullptr;
     }
 
     SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_FreeSurface(surface);
-
-    if (!texture)
+    if (!texture) {
         std::cerr << "Failed to create texture from: " << path << "\n";
+    }
 
+    SDL_FreeSurface(surface);
     return texture;
 }
 
@@ -26,7 +25,7 @@ bool GameOver::init(SDL_Renderer* renderer, int screenW, int screenH)
     width = screenW;
     height = screenH;
 
-    // Load textures
+    // Load textures using stb_image wrapper
     playerDiedTexture = loadTexture(renderer, "Assets/pixDigit/playerDied.png");
     bloodOverlayTexture = loadTexture(renderer, "Assets/pixDigit/bloodOverlay.png");
 

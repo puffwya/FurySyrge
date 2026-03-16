@@ -117,25 +117,25 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
-src/CMakeFiles/RaycasterGame.dir/rule:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/CMakeFiles/RaycasterGame.dir/rule
-.PHONY : src/CMakeFiles/RaycasterGame.dir/rule
+src/CMakeFiles/FurySyrge.dir/rule:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/CMakeFiles/FurySyrge.dir/rule
+.PHONY : src/CMakeFiles/FurySyrge.dir/rule
 
 # Convenience name for target.
-RaycasterGame: src/CMakeFiles/RaycasterGame.dir/rule
-.PHONY : RaycasterGame
+FurySyrge: src/CMakeFiles/FurySyrge.dir/rule
+.PHONY : FurySyrge
 
 # fast build rule for target.
-RaycasterGame/fast:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/build
-.PHONY : RaycasterGame/fast
+FurySyrge/fast:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/build
+.PHONY : FurySyrge/fast
 
 Engine/BSP.o: Engine/BSP.cpp.o
 .PHONY : Engine/BSP.o
 
 # target to build an object file
 Engine/BSP.cpp.o:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/BSP.cpp.o
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/BSP.cpp.o
 .PHONY : Engine/BSP.cpp.o
 
 Engine/BSP.i: Engine/BSP.cpp.i
@@ -143,7 +143,7 @@ Engine/BSP.i: Engine/BSP.cpp.i
 
 # target to preprocess a source file
 Engine/BSP.cpp.i:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/BSP.cpp.i
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/BSP.cpp.i
 .PHONY : Engine/BSP.cpp.i
 
 Engine/BSP.s: Engine/BSP.cpp.s
@@ -151,7 +151,7 @@ Engine/BSP.s: Engine/BSP.cpp.s
 
 # target to generate assembly for a file
 Engine/BSP.cpp.s:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/BSP.cpp.s
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/BSP.cpp.s
 .PHONY : Engine/BSP.cpp.s
 
 Engine/BulletHoleManager.o: Engine/BulletHoleManager.cpp.o
@@ -159,7 +159,7 @@ Engine/BulletHoleManager.o: Engine/BulletHoleManager.cpp.o
 
 # target to build an object file
 Engine/BulletHoleManager.cpp.o:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/BulletHoleManager.cpp.o
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/BulletHoleManager.cpp.o
 .PHONY : Engine/BulletHoleManager.cpp.o
 
 Engine/BulletHoleManager.i: Engine/BulletHoleManager.cpp.i
@@ -167,7 +167,7 @@ Engine/BulletHoleManager.i: Engine/BulletHoleManager.cpp.i
 
 # target to preprocess a source file
 Engine/BulletHoleManager.cpp.i:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/BulletHoleManager.cpp.i
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/BulletHoleManager.cpp.i
 .PHONY : Engine/BulletHoleManager.cpp.i
 
 Engine/BulletHoleManager.s: Engine/BulletHoleManager.cpp.s
@@ -175,7 +175,7 @@ Engine/BulletHoleManager.s: Engine/BulletHoleManager.cpp.s
 
 # target to generate assembly for a file
 Engine/BulletHoleManager.cpp.s:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/BulletHoleManager.cpp.s
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/BulletHoleManager.cpp.s
 .PHONY : Engine/BulletHoleManager.cpp.s
 
 Engine/DoomRenderer.o: Engine/DoomRenderer.cpp.o
@@ -183,7 +183,7 @@ Engine/DoomRenderer.o: Engine/DoomRenderer.cpp.o
 
 # target to build an object file
 Engine/DoomRenderer.cpp.o:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/DoomRenderer.cpp.o
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/DoomRenderer.cpp.o
 .PHONY : Engine/DoomRenderer.cpp.o
 
 Engine/DoomRenderer.i: Engine/DoomRenderer.cpp.i
@@ -191,7 +191,7 @@ Engine/DoomRenderer.i: Engine/DoomRenderer.cpp.i
 
 # target to preprocess a source file
 Engine/DoomRenderer.cpp.i:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/DoomRenderer.cpp.i
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/DoomRenderer.cpp.i
 .PHONY : Engine/DoomRenderer.cpp.i
 
 Engine/DoomRenderer.s: Engine/DoomRenderer.cpp.s
@@ -199,7 +199,7 @@ Engine/DoomRenderer.s: Engine/DoomRenderer.cpp.s
 
 # target to generate assembly for a file
 Engine/DoomRenderer.cpp.s:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/DoomRenderer.cpp.s
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/DoomRenderer.cpp.s
 .PHONY : Engine/DoomRenderer.cpp.s
 
 Engine/Enemy.o: Engine/Enemy.cpp.o
@@ -207,7 +207,7 @@ Engine/Enemy.o: Engine/Enemy.cpp.o
 
 # target to build an object file
 Engine/Enemy.cpp.o:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/Enemy.cpp.o
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/Enemy.cpp.o
 .PHONY : Engine/Enemy.cpp.o
 
 Engine/Enemy.i: Engine/Enemy.cpp.i
@@ -215,7 +215,7 @@ Engine/Enemy.i: Engine/Enemy.cpp.i
 
 # target to preprocess a source file
 Engine/Enemy.cpp.i:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/Enemy.cpp.i
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/Enemy.cpp.i
 .PHONY : Engine/Enemy.cpp.i
 
 Engine/Enemy.s: Engine/Enemy.cpp.s
@@ -223,7 +223,7 @@ Engine/Enemy.s: Engine/Enemy.cpp.s
 
 # target to generate assembly for a file
 Engine/Enemy.cpp.s:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/Enemy.cpp.s
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/Enemy.cpp.s
 .PHONY : Engine/Enemy.cpp.s
 
 Engine/EnemyManager.o: Engine/EnemyManager.cpp.o
@@ -231,7 +231,7 @@ Engine/EnemyManager.o: Engine/EnemyManager.cpp.o
 
 # target to build an object file
 Engine/EnemyManager.cpp.o:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/EnemyManager.cpp.o
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/EnemyManager.cpp.o
 .PHONY : Engine/EnemyManager.cpp.o
 
 Engine/EnemyManager.i: Engine/EnemyManager.cpp.i
@@ -239,7 +239,7 @@ Engine/EnemyManager.i: Engine/EnemyManager.cpp.i
 
 # target to preprocess a source file
 Engine/EnemyManager.cpp.i:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/EnemyManager.cpp.i
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/EnemyManager.cpp.i
 .PHONY : Engine/EnemyManager.cpp.i
 
 Engine/EnemyManager.s: Engine/EnemyManager.cpp.s
@@ -247,7 +247,7 @@ Engine/EnemyManager.s: Engine/EnemyManager.cpp.s
 
 # target to generate assembly for a file
 Engine/EnemyManager.cpp.s:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/EnemyManager.cpp.s
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/EnemyManager.cpp.s
 .PHONY : Engine/EnemyManager.cpp.s
 
 Engine/GameSession.o: Engine/GameSession.cpp.o
@@ -255,7 +255,7 @@ Engine/GameSession.o: Engine/GameSession.cpp.o
 
 # target to build an object file
 Engine/GameSession.cpp.o:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/GameSession.cpp.o
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/GameSession.cpp.o
 .PHONY : Engine/GameSession.cpp.o
 
 Engine/GameSession.i: Engine/GameSession.cpp.i
@@ -263,7 +263,7 @@ Engine/GameSession.i: Engine/GameSession.cpp.i
 
 # target to preprocess a source file
 Engine/GameSession.cpp.i:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/GameSession.cpp.i
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/GameSession.cpp.i
 .PHONY : Engine/GameSession.cpp.i
 
 Engine/GameSession.s: Engine/GameSession.cpp.s
@@ -271,7 +271,7 @@ Engine/GameSession.s: Engine/GameSession.cpp.s
 
 # target to generate assembly for a file
 Engine/GameSession.cpp.s:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/GameSession.cpp.s
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/GameSession.cpp.s
 .PHONY : Engine/GameSession.cpp.s
 
 Engine/HUD.o: Engine/HUD.cpp.o
@@ -279,7 +279,7 @@ Engine/HUD.o: Engine/HUD.cpp.o
 
 # target to build an object file
 Engine/HUD.cpp.o:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/HUD.cpp.o
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/HUD.cpp.o
 .PHONY : Engine/HUD.cpp.o
 
 Engine/HUD.i: Engine/HUD.cpp.i
@@ -287,7 +287,7 @@ Engine/HUD.i: Engine/HUD.cpp.i
 
 # target to preprocess a source file
 Engine/HUD.cpp.i:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/HUD.cpp.i
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/HUD.cpp.i
 .PHONY : Engine/HUD.cpp.i
 
 Engine/HUD.s: Engine/HUD.cpp.s
@@ -295,7 +295,7 @@ Engine/HUD.s: Engine/HUD.cpp.s
 
 # target to generate assembly for a file
 Engine/HUD.cpp.s:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/HUD.cpp.s
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/HUD.cpp.s
 .PHONY : Engine/HUD.cpp.s
 
 Engine/MapToSegments.o: Engine/MapToSegments.cpp.o
@@ -303,7 +303,7 @@ Engine/MapToSegments.o: Engine/MapToSegments.cpp.o
 
 # target to build an object file
 Engine/MapToSegments.cpp.o:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/MapToSegments.cpp.o
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/MapToSegments.cpp.o
 .PHONY : Engine/MapToSegments.cpp.o
 
 Engine/MapToSegments.i: Engine/MapToSegments.cpp.i
@@ -311,7 +311,7 @@ Engine/MapToSegments.i: Engine/MapToSegments.cpp.i
 
 # target to preprocess a source file
 Engine/MapToSegments.cpp.i:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/MapToSegments.cpp.i
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/MapToSegments.cpp.i
 .PHONY : Engine/MapToSegments.cpp.i
 
 Engine/MapToSegments.s: Engine/MapToSegments.cpp.s
@@ -319,7 +319,7 @@ Engine/MapToSegments.s: Engine/MapToSegments.cpp.s
 
 # target to generate assembly for a file
 Engine/MapToSegments.cpp.s:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/MapToSegments.cpp.s
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/MapToSegments.cpp.s
 .PHONY : Engine/MapToSegments.cpp.s
 
 Engine/PickupManager.o: Engine/PickupManager.cpp.o
@@ -327,7 +327,7 @@ Engine/PickupManager.o: Engine/PickupManager.cpp.o
 
 # target to build an object file
 Engine/PickupManager.cpp.o:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/PickupManager.cpp.o
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/PickupManager.cpp.o
 .PHONY : Engine/PickupManager.cpp.o
 
 Engine/PickupManager.i: Engine/PickupManager.cpp.i
@@ -335,7 +335,7 @@ Engine/PickupManager.i: Engine/PickupManager.cpp.i
 
 # target to preprocess a source file
 Engine/PickupManager.cpp.i:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/PickupManager.cpp.i
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/PickupManager.cpp.i
 .PHONY : Engine/PickupManager.cpp.i
 
 Engine/PickupManager.s: Engine/PickupManager.cpp.s
@@ -343,7 +343,7 @@ Engine/PickupManager.s: Engine/PickupManager.cpp.s
 
 # target to generate assembly for a file
 Engine/PickupManager.cpp.s:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/PickupManager.cpp.s
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/PickupManager.cpp.s
 .PHONY : Engine/PickupManager.cpp.s
 
 Engine/Player.o: Engine/Player.cpp.o
@@ -351,7 +351,7 @@ Engine/Player.o: Engine/Player.cpp.o
 
 # target to build an object file
 Engine/Player.cpp.o:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/Player.cpp.o
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/Player.cpp.o
 .PHONY : Engine/Player.cpp.o
 
 Engine/Player.i: Engine/Player.cpp.i
@@ -359,7 +359,7 @@ Engine/Player.i: Engine/Player.cpp.i
 
 # target to preprocess a source file
 Engine/Player.cpp.i:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/Player.cpp.i
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/Player.cpp.i
 .PHONY : Engine/Player.cpp.i
 
 Engine/Player.s: Engine/Player.cpp.s
@@ -367,7 +367,7 @@ Engine/Player.s: Engine/Player.cpp.s
 
 # target to generate assembly for a file
 Engine/Player.cpp.s:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/Player.cpp.s
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/Player.cpp.s
 .PHONY : Engine/Player.cpp.s
 
 Engine/Renderer.o: Engine/Renderer.cpp.o
@@ -375,7 +375,7 @@ Engine/Renderer.o: Engine/Renderer.cpp.o
 
 # target to build an object file
 Engine/Renderer.cpp.o:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/Renderer.cpp.o
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/Renderer.cpp.o
 .PHONY : Engine/Renderer.cpp.o
 
 Engine/Renderer.i: Engine/Renderer.cpp.i
@@ -383,7 +383,7 @@ Engine/Renderer.i: Engine/Renderer.cpp.i
 
 # target to preprocess a source file
 Engine/Renderer.cpp.i:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/Renderer.cpp.i
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/Renderer.cpp.i
 .PHONY : Engine/Renderer.cpp.i
 
 Engine/Renderer.s: Engine/Renderer.cpp.s
@@ -391,7 +391,7 @@ Engine/Renderer.s: Engine/Renderer.cpp.s
 
 # target to generate assembly for a file
 Engine/Renderer.cpp.s:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/Renderer.cpp.s
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/Renderer.cpp.s
 .PHONY : Engine/Renderer.cpp.s
 
 Engine/SpriteRenderer.o: Engine/SpriteRenderer.cpp.o
@@ -399,7 +399,7 @@ Engine/SpriteRenderer.o: Engine/SpriteRenderer.cpp.o
 
 # target to build an object file
 Engine/SpriteRenderer.cpp.o:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/SpriteRenderer.cpp.o
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/SpriteRenderer.cpp.o
 .PHONY : Engine/SpriteRenderer.cpp.o
 
 Engine/SpriteRenderer.i: Engine/SpriteRenderer.cpp.i
@@ -407,7 +407,7 @@ Engine/SpriteRenderer.i: Engine/SpriteRenderer.cpp.i
 
 # target to preprocess a source file
 Engine/SpriteRenderer.cpp.i:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/SpriteRenderer.cpp.i
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/SpriteRenderer.cpp.i
 .PHONY : Engine/SpriteRenderer.cpp.i
 
 Engine/SpriteRenderer.s: Engine/SpriteRenderer.cpp.s
@@ -415,7 +415,7 @@ Engine/SpriteRenderer.s: Engine/SpriteRenderer.cpp.s
 
 # target to generate assembly for a file
 Engine/SpriteRenderer.cpp.s:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/SpriteRenderer.cpp.s
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/SpriteRenderer.cpp.s
 .PHONY : Engine/SpriteRenderer.cpp.s
 
 Engine/TextureManager.o: Engine/TextureManager.cpp.o
@@ -423,7 +423,7 @@ Engine/TextureManager.o: Engine/TextureManager.cpp.o
 
 # target to build an object file
 Engine/TextureManager.cpp.o:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/TextureManager.cpp.o
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/TextureManager.cpp.o
 .PHONY : Engine/TextureManager.cpp.o
 
 Engine/TextureManager.i: Engine/TextureManager.cpp.i
@@ -431,7 +431,7 @@ Engine/TextureManager.i: Engine/TextureManager.cpp.i
 
 # target to preprocess a source file
 Engine/TextureManager.cpp.i:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/TextureManager.cpp.i
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/TextureManager.cpp.i
 .PHONY : Engine/TextureManager.cpp.i
 
 Engine/TextureManager.s: Engine/TextureManager.cpp.s
@@ -439,7 +439,7 @@ Engine/TextureManager.s: Engine/TextureManager.cpp.s
 
 # target to generate assembly for a file
 Engine/TextureManager.cpp.s:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/TextureManager.cpp.s
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/TextureManager.cpp.s
 .PHONY : Engine/TextureManager.cpp.s
 
 Engine/WeaponManager.o: Engine/WeaponManager.cpp.o
@@ -447,7 +447,7 @@ Engine/WeaponManager.o: Engine/WeaponManager.cpp.o
 
 # target to build an object file
 Engine/WeaponManager.cpp.o:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/WeaponManager.cpp.o
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/WeaponManager.cpp.o
 .PHONY : Engine/WeaponManager.cpp.o
 
 Engine/WeaponManager.i: Engine/WeaponManager.cpp.i
@@ -455,7 +455,7 @@ Engine/WeaponManager.i: Engine/WeaponManager.cpp.i
 
 # target to preprocess a source file
 Engine/WeaponManager.cpp.i:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/WeaponManager.cpp.i
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/WeaponManager.cpp.i
 .PHONY : Engine/WeaponManager.cpp.i
 
 Engine/WeaponManager.s: Engine/WeaponManager.cpp.s
@@ -463,7 +463,7 @@ Engine/WeaponManager.s: Engine/WeaponManager.cpp.s
 
 # target to generate assembly for a file
 Engine/WeaponManager.cpp.s:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/WeaponManager.cpp.s
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/WeaponManager.cpp.s
 .PHONY : Engine/WeaponManager.cpp.s
 
 Engine/pItemRenderer.o: Engine/pItemRenderer.cpp.o
@@ -471,7 +471,7 @@ Engine/pItemRenderer.o: Engine/pItemRenderer.cpp.o
 
 # target to build an object file
 Engine/pItemRenderer.cpp.o:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/pItemRenderer.cpp.o
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/pItemRenderer.cpp.o
 .PHONY : Engine/pItemRenderer.cpp.o
 
 Engine/pItemRenderer.i: Engine/pItemRenderer.cpp.i
@@ -479,7 +479,7 @@ Engine/pItemRenderer.i: Engine/pItemRenderer.cpp.i
 
 # target to preprocess a source file
 Engine/pItemRenderer.cpp.i:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/pItemRenderer.cpp.i
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/pItemRenderer.cpp.i
 .PHONY : Engine/pItemRenderer.cpp.i
 
 Engine/pItemRenderer.s: Engine/pItemRenderer.cpp.s
@@ -487,7 +487,7 @@ Engine/pItemRenderer.s: Engine/pItemRenderer.cpp.s
 
 # target to generate assembly for a file
 Engine/pItemRenderer.cpp.s:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/pItemRenderer.cpp.s
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Engine/pItemRenderer.cpp.s
 .PHONY : Engine/pItemRenderer.cpp.s
 
 Intro/StudioIntro.o: Intro/StudioIntro.cpp.o
@@ -495,7 +495,7 @@ Intro/StudioIntro.o: Intro/StudioIntro.cpp.o
 
 # target to build an object file
 Intro/StudioIntro.cpp.o:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Intro/StudioIntro.cpp.o
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Intro/StudioIntro.cpp.o
 .PHONY : Intro/StudioIntro.cpp.o
 
 Intro/StudioIntro.i: Intro/StudioIntro.cpp.i
@@ -503,7 +503,7 @@ Intro/StudioIntro.i: Intro/StudioIntro.cpp.i
 
 # target to preprocess a source file
 Intro/StudioIntro.cpp.i:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Intro/StudioIntro.cpp.i
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Intro/StudioIntro.cpp.i
 .PHONY : Intro/StudioIntro.cpp.i
 
 Intro/StudioIntro.s: Intro/StudioIntro.cpp.s
@@ -511,7 +511,7 @@ Intro/StudioIntro.s: Intro/StudioIntro.cpp.s
 
 # target to generate assembly for a file
 Intro/StudioIntro.cpp.s:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Intro/StudioIntro.cpp.s
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Intro/StudioIntro.cpp.s
 .PHONY : Intro/StudioIntro.cpp.s
 
 Menu/GameOver.o: Menu/GameOver.cpp.o
@@ -519,7 +519,7 @@ Menu/GameOver.o: Menu/GameOver.cpp.o
 
 # target to build an object file
 Menu/GameOver.cpp.o:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Menu/GameOver.cpp.o
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Menu/GameOver.cpp.o
 .PHONY : Menu/GameOver.cpp.o
 
 Menu/GameOver.i: Menu/GameOver.cpp.i
@@ -527,7 +527,7 @@ Menu/GameOver.i: Menu/GameOver.cpp.i
 
 # target to preprocess a source file
 Menu/GameOver.cpp.i:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Menu/GameOver.cpp.i
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Menu/GameOver.cpp.i
 .PHONY : Menu/GameOver.cpp.i
 
 Menu/GameOver.s: Menu/GameOver.cpp.s
@@ -535,7 +535,7 @@ Menu/GameOver.s: Menu/GameOver.cpp.s
 
 # target to generate assembly for a file
 Menu/GameOver.cpp.s:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Menu/GameOver.cpp.s
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Menu/GameOver.cpp.s
 .PHONY : Menu/GameOver.cpp.s
 
 Menu/LevelEnd.o: Menu/LevelEnd.cpp.o
@@ -543,7 +543,7 @@ Menu/LevelEnd.o: Menu/LevelEnd.cpp.o
 
 # target to build an object file
 Menu/LevelEnd.cpp.o:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Menu/LevelEnd.cpp.o
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Menu/LevelEnd.cpp.o
 .PHONY : Menu/LevelEnd.cpp.o
 
 Menu/LevelEnd.i: Menu/LevelEnd.cpp.i
@@ -551,7 +551,7 @@ Menu/LevelEnd.i: Menu/LevelEnd.cpp.i
 
 # target to preprocess a source file
 Menu/LevelEnd.cpp.i:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Menu/LevelEnd.cpp.i
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Menu/LevelEnd.cpp.i
 .PHONY : Menu/LevelEnd.cpp.i
 
 Menu/LevelEnd.s: Menu/LevelEnd.cpp.s
@@ -559,7 +559,7 @@ Menu/LevelEnd.s: Menu/LevelEnd.cpp.s
 
 # target to generate assembly for a file
 Menu/LevelEnd.cpp.s:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Menu/LevelEnd.cpp.s
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Menu/LevelEnd.cpp.s
 .PHONY : Menu/LevelEnd.cpp.s
 
 Menu/MainMenu.o: Menu/MainMenu.cpp.o
@@ -567,7 +567,7 @@ Menu/MainMenu.o: Menu/MainMenu.cpp.o
 
 # target to build an object file
 Menu/MainMenu.cpp.o:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Menu/MainMenu.cpp.o
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Menu/MainMenu.cpp.o
 .PHONY : Menu/MainMenu.cpp.o
 
 Menu/MainMenu.i: Menu/MainMenu.cpp.i
@@ -575,7 +575,7 @@ Menu/MainMenu.i: Menu/MainMenu.cpp.i
 
 # target to preprocess a source file
 Menu/MainMenu.cpp.i:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Menu/MainMenu.cpp.i
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Menu/MainMenu.cpp.i
 .PHONY : Menu/MainMenu.cpp.i
 
 Menu/MainMenu.s: Menu/MainMenu.cpp.s
@@ -583,7 +583,7 @@ Menu/MainMenu.s: Menu/MainMenu.cpp.s
 
 # target to generate assembly for a file
 Menu/MainMenu.cpp.s:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Menu/MainMenu.cpp.s
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Menu/MainMenu.cpp.s
 .PHONY : Menu/MainMenu.cpp.s
 
 Menu/PauseMenu.o: Menu/PauseMenu.cpp.o
@@ -591,7 +591,7 @@ Menu/PauseMenu.o: Menu/PauseMenu.cpp.o
 
 # target to build an object file
 Menu/PauseMenu.cpp.o:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Menu/PauseMenu.cpp.o
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Menu/PauseMenu.cpp.o
 .PHONY : Menu/PauseMenu.cpp.o
 
 Menu/PauseMenu.i: Menu/PauseMenu.cpp.i
@@ -599,7 +599,7 @@ Menu/PauseMenu.i: Menu/PauseMenu.cpp.i
 
 # target to preprocess a source file
 Menu/PauseMenu.cpp.i:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Menu/PauseMenu.cpp.i
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Menu/PauseMenu.cpp.i
 .PHONY : Menu/PauseMenu.cpp.i
 
 Menu/PauseMenu.s: Menu/PauseMenu.cpp.s
@@ -607,7 +607,7 @@ Menu/PauseMenu.s: Menu/PauseMenu.cpp.s
 
 # target to generate assembly for a file
 Menu/PauseMenu.cpp.s:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Menu/PauseMenu.cpp.s
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Menu/PauseMenu.cpp.s
 .PHONY : Menu/PauseMenu.cpp.s
 
 audio/AudioManager.o: audio/AudioManager.cpp.o
@@ -615,7 +615,7 @@ audio/AudioManager.o: audio/AudioManager.cpp.o
 
 # target to build an object file
 audio/AudioManager.cpp.o:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/audio/AudioManager.cpp.o
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/audio/AudioManager.cpp.o
 .PHONY : audio/AudioManager.cpp.o
 
 audio/AudioManager.i: audio/AudioManager.cpp.i
@@ -623,7 +623,7 @@ audio/AudioManager.i: audio/AudioManager.cpp.i
 
 # target to preprocess a source file
 audio/AudioManager.cpp.i:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/audio/AudioManager.cpp.i
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/audio/AudioManager.cpp.i
 .PHONY : audio/AudioManager.cpp.i
 
 audio/AudioManager.s: audio/AudioManager.cpp.s
@@ -631,7 +631,7 @@ audio/AudioManager.s: audio/AudioManager.cpp.s
 
 # target to generate assembly for a file
 audio/AudioManager.cpp.s:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/audio/AudioManager.cpp.s
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/audio/AudioManager.cpp.s
 .PHONY : audio/AudioManager.cpp.s
 
 main.o: main.cpp.o
@@ -639,7 +639,7 @@ main.o: main.cpp.o
 
 # target to build an object file
 main.cpp.o:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/main.cpp.o
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/main.cpp.o
 .PHONY : main.cpp.o
 
 main.i: main.cpp.i
@@ -647,7 +647,7 @@ main.i: main.cpp.i
 
 # target to preprocess a source file
 main.cpp.i:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/main.cpp.i
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/main.cpp.i
 .PHONY : main.cpp.i
 
 main.s: main.cpp.s
@@ -655,8 +655,32 @@ main.s: main.cpp.s
 
 # target to generate assembly for a file
 main.cpp.s:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/main.cpp.s
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/main.cpp.s
 .PHONY : main.cpp.s
+
+third_party/stb_image_wrapper.o: third_party/stb_image_wrapper.cpp.o
+.PHONY : third_party/stb_image_wrapper.o
+
+# target to build an object file
+third_party/stb_image_wrapper.cpp.o:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/third_party/stb_image_wrapper.cpp.o
+.PHONY : third_party/stb_image_wrapper.cpp.o
+
+third_party/stb_image_wrapper.i: third_party/stb_image_wrapper.cpp.i
+.PHONY : third_party/stb_image_wrapper.i
+
+# target to preprocess a source file
+third_party/stb_image_wrapper.cpp.i:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/third_party/stb_image_wrapper.cpp.i
+.PHONY : third_party/stb_image_wrapper.cpp.i
+
+third_party/stb_image_wrapper.s: third_party/stb_image_wrapper.cpp.s
+.PHONY : third_party/stb_image_wrapper.s
+
+# target to generate assembly for a file
+third_party/stb_image_wrapper.cpp.s:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/third_party/stb_image_wrapper.cpp.s
+.PHONY : third_party/stb_image_wrapper.cpp.s
 
 # Help Target
 help:
@@ -666,7 +690,7 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... RaycasterGame"
+	@echo "... FurySyrge"
 	@echo "... Engine/BSP.o"
 	@echo "... Engine/BSP.i"
 	@echo "... Engine/BSP.s"
@@ -733,6 +757,9 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... third_party/stb_image_wrapper.o"
+	@echo "... third_party/stb_image_wrapper.i"
+	@echo "... third_party/stb_image_wrapper.s"
 .PHONY : help
 
 

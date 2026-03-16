@@ -5,7 +5,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <iostream>
-#include <SDL2/SDL_image.h>
+#include "../third_party/stb_image_wrapper.h"
 
 EnemyManager::EnemyManager() {
     for (int i = 0; i < MAX_ENEMIES; i++)
@@ -24,12 +24,12 @@ void EnemyManager::scanMapForSpawnPoints(const Map& map) {
 }
 
 bool loadSpriteFrame(const std::string& path, SpriteFrame& out) {
-    SDL_Surface* surf = IMG_Load(path.c_str());
+    SDL_Surface* surf = LoadSurfaceFromPNG(path.c_str());
     if (!surf) return false;
 
     SDL_Surface* formatted =
         SDL_ConvertSurfaceFormat(surf, SDL_PIXELFORMAT_ARGB8888, 0);
-    SDL_FreeSurface(surf);
+    FreeSurface(surf);
     if (!formatted) return false;
 
     out.w = formatted->w;
@@ -37,7 +37,7 @@ bool loadSpriteFrame(const std::string& path, SpriteFrame& out) {
     out.pixels.resize(out.w * out.h);
     std::memcpy(out.pixels.data(), formatted->pixels, out.w * out.h * 4);
 
-    SDL_FreeSurface(formatted);
+    FreeSurface(formatted);
     return true;
 }
 

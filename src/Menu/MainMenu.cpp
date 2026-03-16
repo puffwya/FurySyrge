@@ -1,24 +1,22 @@
 #include "MainMenu.h"
-#include <SDL2/SDL_image.h>
 #include <iostream>
 #include <algorithm>
 #include <cmath>
+#include "../third_party/stb_image_wrapper.h"
 
 SDL_Texture* MainMenu::loadTexture(SDL_Renderer* renderer, const std::string& path)
 {
-    SDL_Surface* surface = IMG_Load(path.c_str());
+    SDL_Surface* surface = LoadSurfaceFromPNG(path.c_str());
     if (!surface) {
-        std::cerr << "Failed to load: " << path
-                  << " | SDL_image error: " << IMG_GetError() << "\n";
+        std::cerr << "Failed to load: " << path << "\n";
         return nullptr;
     }
 
     SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_FreeSurface(surface);
-
     if (!texture)
         std::cerr << "Failed to create texture from: " << path << "\n";
 
+    SDL_FreeSurface(surface);
     return texture;
 }
 
@@ -47,7 +45,9 @@ bool MainMenu::init(SDL_Renderer* renderer, int w, int h)
     cursorTexture = loadTexture(renderer, "assets/pixDigit/cursorPix.png");
 
     if (!mainBgTexture || !mainLogoFgTexture || !mainLogoBgTexture ||
-        !startTexture || !optionsTexture || !difficultyTexture ||!easyTexture || !mediumTexture || !hardTexture || !backTexture || !quitTexture || !cursorTexture)
+        !startTexture || !optionsTexture || !difficultyTexture ||
+        !easyTexture || !mediumTexture || !hardTexture ||
+        !backTexture || !quitTexture || !cursorTexture)
         return false;
 
     mainBgRect = { 0, 0, screenW, screenH };

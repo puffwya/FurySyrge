@@ -4,25 +4,25 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
-#include <SDL2/SDL_image.h>
+#include "../third_party/stb_image_wrapper.h"
 
 // Helper to load a PNG into a PickupVisual
 bool PickupManager::loadPickupFrame(const std::string& path, PickupVisual& out) {
-    SDL_Surface* surf = IMG_Load(path.c_str());
+    SDL_Surface* surf = LoadSurfaceFromPNG(path.c_str());
     if (!surf) {
         std::cerr << "Failed to load pickup: " << path << "\n";
         return false;
     }
 
     SDL_Surface* formatted = SDL_ConvertSurfaceFormat(surf, SDL_PIXELFORMAT_ARGB8888, 0);
-    SDL_FreeSurface(surf);
+    FreeSurface(surf);
     if (!formatted) return false;
 
     out.w = formatted->w;
     out.h = formatted->h;
     out.pixels.resize(out.w * out.h);
     std::memcpy(out.pixels.data(), formatted->pixels, out.w * out.h * 4);
-    SDL_FreeSurface(formatted);
+    FreeSurface(formatted);
 
     return true;
 }

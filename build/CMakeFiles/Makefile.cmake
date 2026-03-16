@@ -8,8 +8,8 @@ set(CMAKE_DEPENDS_GENERATOR "Unix Makefiles")
 set(CMAKE_MAKEFILE_DEPENDS
   "CMakeCache.txt"
   "/Users/wyattpuff/Raycaster/CMakeLists.txt"
-  "CMakeFiles/4.2.1/CMakeCXXCompiler.cmake"
-  "CMakeFiles/4.2.1/CMakeSystem.cmake"
+  "CMakeFiles/4.2.3/CMakeCXXCompiler.cmake"
+  "CMakeFiles/4.2.3/CMakeSystem.cmake"
   "/Users/wyattpuff/Raycaster/src/CMakeLists.txt"
   "/opt/homebrew/lib/cmake/SDL2/sdl2-config-version.cmake"
   "/opt/homebrew/lib/cmake/SDL2/sdl2-config.cmake"
@@ -109,15 +109,15 @@ set(CMAKE_MAKEFILE_OUTPUTS
 
 # Byproducts of CMake generate step:
 set(CMAKE_MAKEFILE_PRODUCTS
-  "CMakeFiles/4.2.1/CMakeSystem.cmake"
-  "CMakeFiles/4.2.1/CMakeCXXCompiler.cmake"
-  "CMakeFiles/4.2.1/CMakeCXXCompiler.cmake"
-  "CMakeFiles/4.2.1/CMakeCXXCompiler.cmake"
+  "CMakeFiles/4.2.3/CMakeSystem.cmake"
+  "CMakeFiles/4.2.3/CMakeCXXCompiler.cmake"
+  "CMakeFiles/4.2.3/CMakeCXXCompiler.cmake"
+  "CMakeFiles/4.2.3/CMakeCXXCompiler.cmake"
   "CMakeFiles/CMakeDirectoryInformation.cmake"
   "src/CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
-  "src/CMakeFiles/RaycasterGame.dir/DependInfo.cmake"
+  "src/CMakeFiles/FurySyrge.dir/DependInfo.cmake"
   )

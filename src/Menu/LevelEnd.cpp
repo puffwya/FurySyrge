@@ -1,26 +1,24 @@
-#include <SDL2/SDL_image.h>
 #include <iostream>
 #include <algorithm>
 #include "LevelEnd.h"
+#include "../third_party/stb_image_wrapper.h"
 
 constexpr int STAT_VERTICAL_SPACING = 40;
 constexpr int DIGIT_OFFSET_X = 150;
 
 SDL_Texture* LevelEnd::loadTexture(SDL_Renderer* renderer, const std::string& path)
 {
-    SDL_Surface* surface = IMG_Load(path.c_str());
+    SDL_Surface* surface = LoadSurfaceFromPNG(path.c_str());
     if (!surface) {
-        std::cerr << "Failed to load: " << path
-                  << " | SDL_image error: " << IMG_GetError() << "\n";
+        std::cerr << "Failed to load: " << path << "\n";
         return nullptr;
     }
 
     SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_FreeSurface(surface);
-
     if (!texture)
         std::cerr << "Failed to create texture from: " << path << "\n";
 
+    SDL_FreeSurface(surface);
     return texture;
 }
 

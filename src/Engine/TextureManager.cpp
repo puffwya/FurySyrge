@@ -1,34 +1,34 @@
 #include "TextureManager.h"
-#include <SDL2/SDL_image.h>
 #include <iostream>
+#include <cstring>
+#include "../third_party/stb_image_wrapper.h"
 
 bool TextureManager::load(const std::string& name, const std::string& path)
 {
-    SDL_Surface* surf = IMG_Load(path.c_str());
-    if (!surf) {
-        std::cerr << "Failed to load texture: " << name
-                  << " | " << IMG_GetError() << std::endl;
+    // Load surface using wrapper
+    SDL_Surface* surface = LoadSurfaceFromPNG(path.c_str());
+    if (!surface) {
+        std::cerr << "Failed to load texture: " << name << " | " << path << "\n";
         return false;
     }
 
-    SDL_Surface* formatted =
-        SDL_ConvertSurfaceFormat(surf, SDL_PIXELFORMAT_ARGB8888, 0);
-    SDL_FreeSurface(surf);
-
-    if (!formatted) return false;
-
     Texture tex;
-    tex.w = formatted->w;
-    tex.h = formatted->h;
+    tex.w = surface->w;
+    tex.h = surface->h;
     tex.pixels.resize(tex.w * tex.h);
 
-    std::memcpy(
-        tex.pixels.data(),
-        formatted->pixels,
-        tex.w * tex.h * 4
-    );
+    // Copy pixels from SDL_Surface into Texture pixel storage
+    unsigned char* pixels = static_cast<unsigned char*>(surface->pixels);
+    for (int i = 0; i < tex.w * tex.h; ++i) {
+        unsigned char r = pixels[i * 4 + 0];
+        unsigned char g = pixels[i * 4 + 1];
+        unsigned char b = pixels[i * 4 + 2];
+        unsigned char a = pixels[i * 4 + 3];
+        tex.pixels[i] = (a << 24) | (r << 16) | (g << 8) | b;
+    }
 
-    SDL_FreeSurface(formatted);
+    // Free surface (also frees the underlying pixel buffer)
+    FreeSurface(surface);
 
     textures[name] = std::move(tex);
     return true;
