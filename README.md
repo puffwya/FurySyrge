@@ -2,8 +2,6 @@
 
 Custom 2.5D game engine developed in C++ using SDL2 with emphasis on gameplay architecture, and real-time performance.
 
-Built around a BSP-based rendering approach with low-level systems focused on performance, collision handling, and interactive gameplay mechanics.
-
 ## Demo Video
 
 [![Watch Gameplay Demo](https://img.youtube.com/vi/GSVh0Qh_kss/maxresdefault.jpg)](https://youtu.be/GSVh0Qh_kss)
