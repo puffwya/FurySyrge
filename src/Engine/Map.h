@@ -83,16 +83,50 @@ public:
     };
 
     // -----------------------------
+    // Current active level
+    // -----------------------------
+    int currentLevel = 0;
+
+    // -----------------------------
     // Struct-based map
     // -----------------------------
     Cell data[SIZE][SIZE];
 
     // -----------------------------
-    // Construct: auto-build struct map
+    // Construct: auto-build struct map (loads level 1 by default)
     // -----------------------------
     Map() {
-        initializeCells();
+        loadLevel(0);
+    }
 
+    // Convert raw ints to structured Cell data
+    void initializeCells() {
+        for (int y = 0; y < SIZE; y++) {
+            for (int x = 0; x < SIZE; x++) {
+
+                int v = rawMap[y][x];
+
+                switch (v) {
+                    case 0:
+                        data[y][x] = {TileType::Empty, 0.0f, 1.0f};
+                        break;
+
+                    case 1:
+                        data[y][x] = {TileType::Wall, 1.0f, 1.0f}; // default wall and heights
+                        break;
+
+                    case 2:
+                        data[y][x] = {TileType::Spawn, 0.0f, 1.0f};
+                        break;
+                }
+            }
+        }
+    }
+
+    // -----------------------------
+    // Level-specific height overrides
+    // -----------------------------
+    void applyLevel1Overrides() {
         // Top left raised platform 
         data[7][8].height = 0.5f;
         data[8][8].height = 0.5f;
@@ -240,27 +274,125 @@ public:
         data[17][18].isLava = true;
     }
 
-    // Convert raw ints to structured Cell data
-    void initializeCells() {
-        for (int y = 0; y < SIZE; y++) {
-            for (int x = 0; x < SIZE; x++) {
+    void applyLevel2Overrides() {
+        // Staircase going up (steps at 0.25, 0.5, 0.75 increments)
+        // Stairwell at columns 12-14, rows 11-17
+        data[11][12].height = 0.25f;
+        data[11][13].height = 0.25f;
+        data[12][12].height = 0.5f;
+        data[12][13].height = 0.5f;
+        data[13][12].height = 0.75f;
+        data[13][13].height = 0.75f;
 
-                int v = rawMap[y][x];
+        // Second level platform at height 0.9 (walkable, renders as step top)
+        // Platform spans rows 5-9, cols 16-24
+        for (int yy = 5; yy <= 9; ++yy) {
+            for (int xx = 16; xx <= 24; ++xx) {
+                data[yy][xx].height = 0.9f;
+            }
+        }
 
-                switch (v) {
-                    case 0:
-                        data[y][x] = {TileType::Empty, 0.0f, 1.0f};
-                        break;
+        // Second level cover walls (half height)
+        data[6][18].height = 0.25f;
+        data[6][19].height = 0.25f;
+        data[7][17].height = 0.25f;
+        data[7][20].height = 0.25f;
+        data[8][18].height = 0.25f;
+        data[8][21].height = 0.25f;
 
-                    case 1:
-                        data[y][x] = {TileType::Wall, 1.0f, 1.0f}; // default wall and heights
-                        break;
+        // Main floor cover walls
+        data[15][10].height = 0.25f;
+        data[15][11].height = 0.25f;
+        data[16][10].height = 0.25f;
+        data[16][11].height = 0.25f;
+        data[20][14].height = 0.25f;
+        data[20][15].height = 0.25f;
+        data[21][14].height = 0.25f;
+        data[21][15].height = 0.25f;
 
-                    case 2:
-                        data[y][x] = {TileType::Spawn, 0.0f, 1.0f};
-                        break;
+        // Pit / lava area bottom right
+        data[25][12].height = -0.5f;
+        data[25][13].height = -0.5f;
+        data[25][14].height = -0.5f;
+        data[25][15].height = -0.5f;
+        data[25][16].height = -0.5f;
+        data[26][12].height = -0.5f;
+        data[26][13].height = -0.5f;
+        data[26][14].height = -0.5f;
+        data[26][15].height = -0.5f;
+        data[26][16].height = -0.5f;
+
+        data[25][12].isLava = true;
+        data[25][13].isLava = true;
+        data[25][14].isLava = true;
+        data[25][15].isLava = true;
+        data[25][16].isLava = true;
+        data[26][12].isLava = true;
+        data[26][13].isLava = true;
+        data[26][14].isLava = true;
+        data[26][15].isLava = true;
+        data[26][16].isLava = true;
+
+        // Spawn point on main floor
+        data[20][6].type = TileType::Spawn;
+    }
+
+    // -----------------------------
+    // Load a specific level layout
+    // -----------------------------
+    void loadLevel(int levelIndex) {
+        currentLevel = levelIndex;
+
+        if (levelIndex == 1) {
+            // Level 2 map data (verticality: stairs + second level)
+            static const int lvl2[SIZE][SIZE] = {
+                {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+                {1,0,0,0,0,0,0,0,0,0,0,0,0,0,1, 1,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+                {1,0,1,1,1,1,1,1,1,1,0,1,1,1,1, 1,0,1,1,1,1,1,1,1,1,0,1,1,1,1},
+                {1,0,1,0,0,0,0,0,0,1,0,1,0,0,0, 0,0,1,0,0,0,0,0,0,1,0,1,0,0,1},
+                {1,0,1,0,1,1,1,1,0,1,0,1,0,1,1, 1,0,1,0,1,1,1,1,0,1,0,1,0,0,1},
+                {1,0,1,0,1,0,0,1,0,1,0,1,0,1,0, 0,0,1,0,1,0,0,1,0,1,0,1,0,0,1},
+                {1,0,1,0,1,0,1,1,0,1,0,1,0,1,0, 0,1,1,0,1,0,1,1,0,1,0,1,0,0,1},
+                {1,0,1,0,1,0,1,0,0,0,0,0,0,1,0, 0,0,0,0,1,0,0,0,0,1,0,1,0,0,1},
+                {1,0,1,0,1,1,1,1,1,1,1,1,1,1,0, 0,0,0,0,1,1,1,1,1,1,0,1,0,0,1},
+                {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,1,0,0,1},
+                {1,0,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,0,0,1},
+                {1,0,1,0,0,0,0,0,0,0,0,0,0,0,1, 1,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+                {1,0,1,0,1,1,1,0,1,1,1,0,1,1,1, 1,0,1,1,1,0,1,1,1,0,1,1,1,0,1},
+                {1,0,1,0,0,0,1,0,1,0,0,0,1,0,0, 0,0,1,0,0,0,1,0,0,0,1,0,0,0,1},
+                {1,0,1,0,1,0,1,0,1,0,1,1,1,0,1, 1,0,1,0,1,1,1,0,1,0,1,0,1,0,1},
+                {1,0,1,0,1,0,1,0,1,0,0,0,0,0,1, 1,0,1,0,0,0,0,0,1,0,1,0,1,0,1},
+                {1,0,1,0,1,1,1,0,1,1,1,1,1,0,1, 1,0,1,1,1,1,1,0,1,1,1,0,1,0,1},
+                {1,0,0,0,0,0,0,0,0,0,0,0,0,0,1, 1,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+                {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+                {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+                {1,0,0,0,0,0,0,0,0,0,0,0,0,0,1, 1,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+                {1,0,1,1,1,0,1,1,1,1,1,0,1,1,1, 1,0,1,1,1,1,1,0,1,1,1,0,1,1,1},
+                {1,0,1,0,0,0,1,0,0,0,1,0,1,0,0, 0,0,1,0,0,0,1,0,0,0,1,0,1,0,1},
+                {1,0,1,0,1,1,1,0,1,1,1,0,1,0,1, 1,0,1,0,1,1,1,0,1,1,1,0,1,0,1},
+                {1,0,1,0,0,0,0,0,1,0,0,0,1,0,0, 0,0,1,0,0,0,0,0,1,0,0,0,1,0,1},
+                {1,0,1,1,1,1,1,1,1,1,1,1,1,1,0, 0,1,1,1,1,1,1,1,1,1,1,0,1,0,1},
+                {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,1,0,0,1},
+                {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,0,0,1},
+                {1,0,0,0,0,0,0,0,0,0,0,0,0,0,1, 1,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+                {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
+            };
+
+            for (int y = 0; y < SIZE; ++y) {
+                for (int x = 0; x < SIZE; ++x) {
+                    rawMap[y][x] = lvl2[y][x];
                 }
             }
+        } else {
+            // Level 1: rawMap already has the data from inline init
+        }
+
+        initializeCells();
+
+        if (levelIndex == 1) {
+            applyLevel2Overrides();
+        } else {
+            applyLevel1Overrides();
         }
     }
 

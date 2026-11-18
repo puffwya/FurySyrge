@@ -59,6 +59,7 @@ public:
     EnemyManager enemyManager;
 
     Difficulty difficulty;
+    int currentLevel = 0;
 
 private:
     // Core gameplay state
@@ -76,7 +77,10 @@ private:
 
     float* zBuffer = nullptr;
 
-    void initWorld(Renderer& renderer, int screenW);
+    void initWorld(Renderer& renderer, int screenW, int levelIndex = 0);
+
+    // Switch to a different level (rebuilds BSP + renderer)
+    void loadLevel(int levelIndex);
 
     // Wave control 
     void startWave(int index);

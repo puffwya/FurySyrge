@@ -144,7 +144,14 @@ GameSession::~GameSession() {
     delete[] zBuffer;
 }
 
-void GameSession::initWorld(Renderer& renderer, int screenW) {
+void GameSession::initWorld(Renderer& renderer, int screenW, int levelIndex) {
+    (void)renderer;
+    loadLevel(levelIndex);
+}
+
+void GameSession::loadLevel(int levelIndex) {
+    currentLevel = levelIndex;
+    worldMap.loadLevel(levelIndex);
     enemyManager.scanMapForSpawnPoints(worldMap);
 
     segments = buildSegmentsFromGrid(worldMap);
