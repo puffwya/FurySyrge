@@ -390,8 +390,8 @@ void GameSession::update(float dt, const Uint8* keys, GameState& gameState, Audi
     static bool prevKey2 = false;
     if (keys[SDL_SCANCODE_2] && !prevKey2) {
         loadLevel(currentLevel == 0 ? 1 : 0);
-        // Reset player to safe spawn area
-        player.x = 6.5f; player.y = 20.5f; player.z = 0.5f;
+        // Reset player to safe spawn area on main floor
+        player.x = 5.5f; player.y = 5.5f; player.z = 0.5f;
         player.velX = 0; player.velY = 0; player.velZ = 0;
     }
     prevKey2 = keys[SDL_SCANCODE_2];
