@@ -212,10 +212,17 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
         z += velZ * delta;       // move player vertically
         velZ -= GRAVITY * delta; // apply gravity
 
-        if (z >= map.get(int(x), int(y)).cHeight) {
-            z = map.get(int(x), int(y)).cHeight;
-            if (velZ > 0) {
-                velZ = 0;
+        // Only enforce ceiling when near this tile's floor level.
+        // Jumping over lower tiles (pits, cover walls) should not hit
+        // that tile's ceiling and snap the player down.
+        float feetZ = z - 0.5f;
+        float tileHeight = map.get(int(x), int(y)).height;
+        if (feetZ <= tileHeight + 0.75f) {
+            if (z >= map.get(int(x), int(y)).cHeight) {
+                z = map.get(int(x), int(y)).cHeight;
+                if (velZ > 0) {
+                    velZ = 0;
+                }
             }
         }
     }
