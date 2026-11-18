@@ -270,9 +270,6 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
             if (z < 0.5f + tileX.height) {
                 z += fallSpeed * delta;
                 if (z > 0.5f + tileX.height) z = 0.5f + tileX.height; // clamp so we don't overshoot
-            } else if (z > 0.5f + tileX.height) {
-                z -= fallSpeed * delta;
-                if (z < 0.5f + tileX.height) z = 0.5f + tileX.height;
             }
         }
     } else {
@@ -311,9 +308,6 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
             if (z < 0.5f + tileY.height) {
                 z += fallSpeed * delta;
                 if (z > 0.5f + tileY.height) z = 0.5f + tileY.height; // clamp so we don't overshoot
-            } else if (z > 0.5f + tileY.height) {
-                z -= fallSpeed * delta;
-                if (z < 0.5f + tileY.height) z = 0.5f + tileY.height;
             }
         }
     } else {

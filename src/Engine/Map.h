@@ -288,6 +288,9 @@ public:
                 float h = data[y][x].height;
                 if (h > 0.0f && h < 1.0f) {
                     data[y][x].cHeight = h + 1.0f;
+                } else if (h < 0.0f) {
+                    // Pits/lava: no ceiling restriction (open above)
+                    data[y][x].cHeight = 10.0f;
                 }
             }
         }
@@ -364,6 +367,9 @@ public:
                 float h = data[y][x].height;
                 if (h > 0.0f && h < 1.0f) {
                     data[y][x].cHeight = h + 1.0f;
+                } else if (h < 0.0f) {
+                    // Pits/lava: no ceiling restriction (open above)
+                    data[y][x].cHeight = 10.0f;
                 }
             }
         }
