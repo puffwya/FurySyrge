@@ -386,6 +386,16 @@ void GameSession::updateWallAnimations(float dt, AudioManager& audio) {
 }
 
 void GameSession::update(float dt, const Uint8* keys, GameState& gameState, AudioManager& audio) {
+    // Temporary: press '2' to switch to level 2, '1' for level 1
+    static bool prevKey2 = false;
+    if (keys[SDL_SCANCODE_2] && !prevKey2) {
+        loadLevel(currentLevel == 0 ? 1 : 0);
+        // Reset player to safe spawn area
+        player.x = 6.5f; player.y = 20.5f; player.z = 0.5f;
+        player.velX = 0; player.velY = 0; player.velZ = 0;
+    }
+    prevKey2 = keys[SDL_SCANCODE_2];
+
     player.update(dt, keys, worldMap, enemyManager, weaponManager, weapon, gameState, audio, bulletHoleManager);
     enemyManager.update(dt, player, pickupManager, worldMap, audio);
     pickupManager.update(player, dt, weapon, audio);
