@@ -281,6 +281,16 @@ public:
         data[17][16].isLava = true; 
         data[17][17].isLava = true;
         data[17][18].isLava = true;
+
+        // Set ceiling height = floor height + 1.0 for all raised floor tiles
+        for (int y = 0; y < SIZE; ++y) {
+            for (int x = 0; x < SIZE; ++x) {
+                float h = data[y][x].height;
+                if (h > 0.0f && h < 1.0f) {
+                    data[y][x].cHeight = h + 1.0f;
+                }
+            }
+        }
     }
 
     void applyLevel2Overrides() {
@@ -347,6 +357,16 @@ public:
 
         // Spawn point on main floor (center-left open area)
         data[5][5].type = TileType::Spawn;
+
+        // Set ceiling height = floor height + 1.0 for all raised floor tiles
+        for (int y = 0; y < SIZE; ++y) {
+            for (int x = 0; x < SIZE; ++x) {
+                float h = data[y][x].height;
+                if (h > 0.0f && h < 1.0f) {
+                    data[y][x].cHeight = h + 1.0f;
+                }
+            }
+        }
     }
 
     // -----------------------------

@@ -207,7 +207,7 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
     }
 
     // Gravity while in the air
-    if (onGround == false && z - 0.5 > map.get(int(x), int(y)).height) {
+    if (onGround == false && z - 0.5f >= map.get(int(x), int(y)).height) {
 
         z += velZ * delta;       // move player vertically
         velZ -= GRAVITY * delta; // apply gravity
