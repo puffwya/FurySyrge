@@ -180,20 +180,13 @@ void PickupManager::renderPickups(
             pixels[y * screenW + x] = color;
         };
 
-        // Draw with z-buffer / wall clipping
+        // Draw with per-pixel z-buffer depth test
         for (int x = drawStartX; x < drawEndX; x++) {
-            float wallDepth = zBuffer[x];
-            if (wallDepth >= transformY) {
-                for (int y = drawStartY; y < drawEndY; y++)
+            for (int y = drawStartY; y < drawEndY; y++) {
+                if (zBuffer[y * screenW + x] >= transformY) {
                     drawPixel(x, y);
-                continue;
+                }
             }
-
-            int wallTopY = int(std::ceil(colWallTop[x]));
-            if (wallTopY <= drawStartY) continue;
-            int clipEnd = std::min(wallTopY, drawEndY);
-            for (int y = drawStartY; y < clipEnd; y++)
-                drawPixel(x, y);
         }
     }
 }

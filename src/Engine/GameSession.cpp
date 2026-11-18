@@ -29,7 +29,7 @@ DifficultyParams getDifficultyParams(Difficulty d)
 GameSession::GameSession(Renderer& renderer, int screenW, int screenH, Difficulty diff) : difficulty(diff) {
     initWorld(renderer, screenW);
 
-    zBuffer = new float[screenW];
+    zBuffer = new float[screenW * screenH];
 
     weaponManager.loadAssets(renderer.getSDLRenderer());
 

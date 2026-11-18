@@ -186,36 +186,38 @@ void DoomRenderer::renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, i
         if (tmax <= 1e-5f) continue; // fully behind camera
 
         // Project vertical position
-        float screenY_enter = cy - ((tileHeight - player.z) * screenH / t_enter);
-        float screenY_exit  = cy - ((tileHeight - player.z) * screenH / tmax);
+        float fovRad = 66.0f * (3.14159265f / 180.0f);
+        float projPlaneDist = (screenW * 0.5f) / tanf(fovRad * 0.5f);
+        float eyeHeight = player.z - tileHeight;
+
+        float screenY_enter = cy - ((tileHeight - player.z) * projPlaneDist / t_enter);
+        float screenY_exit  = cy - ((tileHeight - player.z) * projPlaneDist / tmax);
 
         int yTop = std::max(0, int(std::ceil(std::min(screenY_enter, screenY_exit))));
         int yBottom = std::min(screenH - 1, int(std::floor(std::max(screenY_enter, screenY_exit))));
 
         if (yBottom < 0 || yTop >= screenH) continue;
 
-        // Z-buffer test (horizontal spans do NOT update zBuffer)
-        if (t_enter >= zBuffer[sx]) continue;
-
-        float fovRad = 66.0f * (3.14159265f / 180.0f);
-        float projPlaneDist = (screenW * 0.5f) / tanf(fovRad * 0.5f);
-        float eyeHeight = tileHeight - player.z;
-
         // Precompute constants
         float invSize = 1.0f / sizeWorld;
 
-        // Draw vertical span
+        // Draw vertical span with per-pixel depth test
         uint32_t* px = pixels + yTop * screenW + sx;
+        float* zPtr = zBuffer + yTop * screenW + sx;
 
         for (int y = yTop; y <= yBottom; ++y) {
             float p = float(y - screenH * 0.5f); // row relative to center
-            if (fabs(p) < 1e-6f) continue;
+            if (fabs(p) < 1e-6f) { px += screenW; zPtr += screenW; continue; }
 
             float rowDist = eyeHeight * projPlaneDist / p;
+            if (rowDist <= 0.0f) { px += screenW; zPtr += screenW; continue; } // behind camera
+
+            // Depth test: skip if wall or closer floor already here
+            if (rowDist >= *zPtr) { px += screenW; zPtr += screenW; continue; }
 
             // Compute world coordinates along the ray for this column
-            float worldX = -player.x + dirx * rowDist;
-            float worldY = -player.y + diry * rowDist;
+            float worldX = player.x + dirx * rowDist;
+            float worldY = player.y + diry * rowDist;
 
             // Convert world to tile local
             float localX = (worldX - wx) * invSize;
@@ -245,7 +247,9 @@ void DoomRenderer::renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, i
             }
 
             *px = color;
+            *zPtr = rowDist;
             px += screenW;
+            zPtr += screenW;
         }
     }
 }
@@ -342,8 +346,9 @@ void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int ma
         float wallDist = std::hypot(wallWorldX - seg.a.x, wallWorldY - seg.a.y);
         float u = wallDist / (wallLength + 1e-6f);
 
-        // Draw textured column
+        // Draw textured column with per-pixel depth test
         uint32_t* px = pixels + drawStart * screenW + sx;
+        float* zPtr = zBuffer + drawStart * screenW + sx;
         int columnHeight = drawEnd - drawStart + 1;
         for (int y = drawStart; y <= drawEnd; ++y) {
             float ty = float(y - drawStart) / float(columnHeight + 1e-6f);
@@ -353,17 +358,19 @@ void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int ma
             if (texX < 0) texX += wallTex.w;
             if (texY < 0) texY += wallTex.h;
 
-            *px = wallTex.pixels[texY * wallTex.w + texX];
+            if (depth < *zPtr) {
+                *px = wallTex.pixels[texY * wallTex.w + texX];
+                *zPtr = depth;
+            }
             px += screenW;
+            zPtr += screenW;
         }
 
         drawBulletHolesOnWall(seg, sxA, sxB, screenW, screenH, pixels, bulletHoleManager, player, playerToWallDist);
 
+        // Track wall top for sprite clipping
         if (tileH > 0.0f) { // Only blocking walls
-            if (depth < zBuffer[sx]) {
-                zBuffer[sx] = depth;
-                colWallTop[sx] = colCeilY;
-            }
+            colWallTop[sx] = colCeilY;
         }
     }
 }
@@ -500,9 +507,9 @@ void DoomRenderer::render(uint32_t* pixels, int screenW, int screenH,
     static constexpr uint32_t CLEAR_PIXEL = 0x00000000; // fully transparent black
     std::fill(pixels, pixels + screenW * screenH, CLEAR_PIXEL);
 
-    // Init zBuffer
-    for (int x = 0; x < screenW; ++x)
-        zBuffer[x] = 1e6f;
+    // Init zBuffer (per-pixel)
+    for (int i = 0; i < screenW * screenH; ++i)
+        zBuffer[i] = 1e6f;
 
     static std::vector<uint8_t> tileDrawn;
     tileDrawn.assign(Map::SIZE * Map::SIZE, 0);
