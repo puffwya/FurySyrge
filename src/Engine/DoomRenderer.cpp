@@ -40,8 +40,9 @@ static bool segmentFaceExtents(const Map& map, const GridSegment& seg,
 
 DoomRenderer::DoomRenderer(const std::vector<GridSegment>& segments,
                            std::unique_ptr<BSPNode> bspRoot)
-    : m_segments(segments), m_bspRoot(std::move(bspRoot))
+    : m_bspRoot(std::move(bspRoot))
 {
+    (void)segments; // geometry is fully described by the BSP tree
 }
 
 // Bullet holes live on a tile face, identified by (tileX, tileY, dir) plus the
@@ -506,15 +507,7 @@ void DoomRenderer::traverseBSP(
         int idx = tx + ty * Map::SIZE;
         if (tileDrawn[idx])
             continue;
-        if (map.get(tx+1,ty).height < 0 || map.get(tx,ty+1).height < 0 || map.get(tx,ty-1).height < 0 || map.get(tx-1,ty).height < 0 || map.get(tx+1,ty+1).height < 0 || map.get(tx-1,ty-1).height < 0) {
-            tileDrawn[idx] = false;
-        }
-        else if (map.get(tx+2,ty).height < 0 || map.get(tx,ty+2).height < 0 || map.get(tx,ty-2).height < 0 || map.get(tx-2,ty).height < 0 || map.get(tx+2,ty+2).height < 0 || map.get(tx-2,ty-2).height < 0) {
-            tileDrawn[idx] = false;
-        }
-        else {
-            tileDrawn[idx] = true;
-        }
+        tileDrawn[idx] = true;
 
         const Map::Cell& cell = map.get(tx, ty);
         float h = cell.height;

@@ -160,33 +160,3 @@ std::vector<GridSegment> buildSegmentsFromGrid(const Map& map)
     return result;
 }
 
-std::vector<TopSurface> generateTopSurfaces(const std::vector<GridSegment>& segments, const Map& map) {
-    std::vector<TopSurface> tops;
-
-    for (const auto& seg : segments) {
-        // Only partial walls
-        if (seg.frontHeight < 1.0f) {
-
-            // Optional: only create top if the neighbor is lower
-            int nx = seg.tileX;
-            int ny = seg.tileY;
-
-            float neighborHeight = 0.0f;
-
-            switch (seg.dir) {
-                case GridSegment::Dir::North: neighborHeight = map.get(nx, ny-1).height; break;
-                case GridSegment::Dir::South: neighborHeight = map.get(nx, ny+1).height; break;
-                case GridSegment::Dir::West:  neighborHeight = map.get(nx-1, ny).height; break;
-                case GridSegment::Dir::East:  neighborHeight = map.get(nx+1, ny).height; break;
-            }
-
-            // Only add if neighbor is lower or empty
-            if (seg.frontHeight > neighborHeight) {
-                tops.push_back({ seg.a, seg.b, seg.frontHeight });
-            }
-        }
-    }
-
-    return tops;
-}
-

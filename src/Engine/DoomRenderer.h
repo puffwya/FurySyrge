@@ -32,7 +32,6 @@ public:
                          BulletHoleManager& bulletHoleManager);
 
 private:
-    std::vector<GridSegment> m_segments;
     std::unique_ptr<BSPNode> m_bspRoot;
 
     PickupManager* pickupManager = nullptr;
