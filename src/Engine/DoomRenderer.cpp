@@ -59,7 +59,10 @@ void DoomRenderer::drawBulletHoles(
     const Map& map,
     BulletHoleManager& bulletHoleManager
 ) {
-    const float focal = Projection::focalLength(screenW);
+    // Same anisotropic projection as the wall renderer (see Projection.h):
+    // screen X with focalX, screen Y with focalY.
+    const float focalX = Projection::focalX(screenW);
+    const float focalY = Projection::focalY(screenH);
     const float cx = screenW * 0.5f;
     const float cy = screenH * 0.5f;
 
@@ -97,19 +100,19 @@ void DoomRenderer::drawBulletHoles(
         const float ceilZ  = std::max(hA, hB);
         if (ceilZ - floorZ <= 1e-4f) continue;
 
-        const int px = int(cx + (camX / camY) * focal + 0.5f);
+        const int px = int(cx + (camX / camY) * focalX + 0.5f);
         if (px < 0 || px >= screenW) continue;
 
         // Vertical span of the face at this depth (same rounding as the wall)
-        const float faceCeilY   = cy - (ceilZ  - player.z) * focal / camY;
-        const float faceFloorY  = cy - (floorZ - player.z) * focal / camY;
+        const float faceCeilY   = cy - (ceilZ  - player.z) * focalY / camY;
+        const float faceFloorY  = cy - (floorZ - player.z) * focalY / camY;
         const int   faceTopRow    = std::max(0, int(std::ceil(std::min(faceCeilY, faceFloorY))));
         const int   faceBottomRow = std::min(screenH - 1, int(std::floor(std::max(faceCeilY, faceFloorY))));
         if (faceBottomRow < faceTopRow) continue;
 
         // Impact at eye height projects onto the horizon; holeZ carries the
         // shooter's eye height, so this is the real projection of that point.
-        const int midY = int(cy - (hole.holeZ - player.z) * focal / camY) + hole.verticalOffset;
+        const int midY = int(cy - (hole.holeZ - player.z) * focalY / camY) + hole.verticalOffset;
 
         const auto& visual = bulletHoleManager.getVisual(hole.type);
         const int texW = visual.w;
@@ -179,9 +182,10 @@ void DoomRenderer::renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, i
     const float cy = screenH * 0.5f;
     const float EPS = 1e-6f;
 
-    // Shared projection distance (see Projection.h) - was recomputed with its
-    // own tan() call inside the column loop before.
-    const float projPlaneDist = Projection::focalLength(screenW);
+    // Floor rasterizer's vertical projection distance (see Projection.h) -
+    // hoisted out of the column loop, where it used to be recomputed with its
+    // own tan() call every column.
+    const float projPlaneDist = Projection::floorFocalY(screenW);
 
     // Get time in seconds for animation
     float timeSec = float(SDL_GetTicks()) / 1000.0f;
@@ -360,13 +364,15 @@ void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int ma
         }
     }
 
-    // Project to screen X (same focal length as the Y projection below)
-    const float focal = Projection::focalLength(screenW);
+    // Original anisotropic projection (see Projection.h): screen X uses
+    // focalX = screenW/2, screen Y uses focalY = screenH.
+    const float focalX = Projection::focalX(screenW);
+    const float focalY = Projection::focalY(screenH);
     const float cx = screenW * 0.5f;
     const float cy = screenH * 0.5f;
 
-    float sxA = (a_camX / a_camY) * focal + cx;
-    float sxB = (b_camX / b_camY) * focal + cx;
+    float sxA = (a_camX / a_camY) * focalX + cx;
+    float sxB = (b_camX / b_camY) * focalX + cx;
 
     // Skip if entirely off-screen horizontally
     if ((sxA < -screenW && sxB < -screenW) || (sxA > 2*screenW && sxB > 2*screenW)) return;
@@ -375,11 +381,11 @@ void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int ma
     int x1 = std::clamp(int(std::ceil (std::max(sxA, sxB))), 0, screenW - 1);
     if (x1 < x0) std::swap(x0, x1);
 
-    // Project top/bottom for endpoints (same focal length as screen X)
-    float a_sy_floor   = cy - (floorZ - player.z) * (focal / a_camY);
-    float a_sy_ceiling = cy - (ceilZ  - player.z) * (focal / a_camY);
-    float b_sy_floor   = cy - (floorZ - player.z) * (focal / b_camY);
-    float b_sy_ceiling = cy - (ceilZ  - player.z) * (focal / b_camY);
+    // Project top/bottom for endpoints (vertical focal length)
+    float a_sy_floor   = cy - (floorZ - player.z) * (focalY / a_camY);
+    float a_sy_ceiling = cy - (ceilZ  - player.z) * (focalY / a_camY);
+    float b_sy_floor   = cy - (floorZ - player.z) * (focalY / b_camY);
+    float b_sy_ceiling = cy - (ceilZ  - player.z) * (focalY / b_camY);
 
     // 1/depth is linear in screen X along a world-space line, depth itself is not.
     const float invA = 1.0f / a_camY;

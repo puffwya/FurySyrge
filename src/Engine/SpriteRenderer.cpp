@@ -40,7 +40,7 @@ void SpriteRenderer::renderEnemies(
     float dirY = std::sin(player.angle);
     float planeX = -dirY * Projection::planeLength();
     float planeY = dirX * Projection::planeLength();
-    const float focal = Projection::focalLength(screenW);
+    const float focalY = Projection::focalY(screenH);
 
     for (int i = 0; i < count; i++) {
         Enemy* e = drawList[i].enemy;
@@ -62,14 +62,14 @@ void SpriteRenderer::renderEnemies(
         int screenX = int((screenW / 2.0f) * (1 + transformX / transformY));
 
         // Vertical scaling with aspect ratio
-        int spriteH = std::max(1, int(focal / transformY * e->height));
+        int spriteH = std::max(1, int(focalY / transformY * e->height));
         int spriteW = std::max(1, int(spriteH * (float(frameW) / float(frameH))));
 
         float enemyBottom = e->z - player.z;
         float enemyTop = e->z + e->height - player.z;
 
-        int drawStartY = int(screenH / 2 - enemyTop / transformY * focal);
-        int drawEndY = int(screenH / 2 - enemyBottom / transformY * focal);
+        int drawStartY = int(screenH / 2 - enemyTop / transformY * focalY);
+        int drawEndY = int(screenH / 2 - enemyBottom / transformY * focalY);
         int drawStartX = screenX - spriteW / 2;
         int drawEndX = drawStartX + spriteW;
 

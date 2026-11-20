@@ -3,32 +3,43 @@
 
 #include <cmath>
 
-// Single source of truth for the world <-> screen projection.
+// World <-> screen projection.
 //
-// Walls, floors, sprites, pickups and hitscan all have to agree on these two
-// numbers. They didn't: walls used screenW/2 (600) for X and screenH (900) for
-// Y, floors used (screenW/2)/tan(fov/2) (924), sprites used a 0.66 camera
-// plane (909). The result was a vertically stretched world with sprites that
-// were ~1.5x too wide and laterally displaced relative to the walls.
+// The projection is deliberately ANISOTROPIC: horizontal and vertical use
+// different focal lengths. That is the original FurySyrge look - 90 degrees
+// horizontal FOV with walls drawn ~1.5x taller than square - and walls and
+// floors are meant to stay pixel-identical to it.
+//
+// Sprites, pickups and hitscan must use the SAME two focal lengths as the
+// walls. They used to hardcode a 0.66 camera plane instead, which made them
+// ~1.5x too wide and laterally displaced relative to the walls they stood
+// next to. Take focalX() / focalY() / planeLength() from here and from
+// nowhere else.
 namespace Projection {
 
 constexpr float PI = 3.14159265358979f;
-constexpr float FOV_DEG = 66.0f;              // horizontal field of view
-constexpr float FOV_RAD = FOV_DEG * PI / 180.0f;
+constexpr float FOV_DEG = 66.0f;   // only used by the floor rasterizer
 
-// Distance from the eye to the projection plane, in pixels. Used for every
-// screen-space projection: screenY = screenH/2 - (z - eyeZ) * focal / depth.
-inline float focalLength(int screenW)
-{
-    return (screenW * 0.5f) / std::tan(FOV_RAD * 0.5f);
-}
+// Wall / sprite horizontal focal length: screenW/2 (= 90 deg hFOV).
+inline float focalX(int screenW) { return screenW * 0.5f; }
+
+// Wall / sprite vertical focal length: screenH.
+inline float focalY(int screenH) { return float(screenH); }
 
 // Camera-plane half length for the sprite / hitscan projection:
-//     screenX = screenW/2 * (1 + transformX / transformY)
-// which is equivalent to focalLength() when planeLength() == (screenW/2)/focal.
-inline float planeLength()
+//     screenX = screenW/2 * (1 + transformX/transformY)
+// which equals (screenW/2) / focalX(screenW). With focalX = screenW/2 that is
+// exactly 1.0 at every resolution, so it takes no arguments (Player::shoot
+// has no screen size to pass in).
+inline float planeLength() { return 1.0f; }
+
+// Floor rasterizer vertical projection distance, (W/2)/tan(fov/2) - 924px at
+// 1200 wide. Kept separate from focalY because that is what the original
+// floor code used; walls use screenH (900), a 2.7% mismatch that predates
+// these fixes and is left alone on purpose.
+inline float floorFocalY(int screenW)
 {
-    return std::tan(FOV_RAD * 0.5f);
+    return (screenW * 0.5f) / std::tan(FOV_DEG * 0.5f * PI / 180.0f);
 }
 
 } // namespace Projection
