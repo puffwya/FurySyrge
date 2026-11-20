@@ -19,11 +19,10 @@ public:
     DoomRenderer(const std::vector<GridSegment>& segments,
                  std::unique_ptr<BSPNode> bspRoot);
 
-    // Render into pixels buffer. zBuffer must be length screenW
+    // Render into pixels buffer. zBuffer must be length screenW * screenH
+    // (per-pixel depth, world units of perpendicular camera distance).
     void render(uint32_t* pixels, int screenW, int screenH,
                 const Player& player, Map& map, float* zBuffer, EnemyManager& em, TextureManager& textureManager, BulletHoleManager& bulletHoleManager);
-
-    float colWallTop[1200]; // store the ceiling Y for each column
 
     void setPickupManager(PickupManager& manager) { pickupManager = &manager; }
 

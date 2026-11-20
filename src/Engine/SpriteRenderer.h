@@ -13,8 +13,7 @@ public:
         EnemyManager& manager,
         const Player& player,
         float* zBuffer,
-        Map& map,
-        float colWallTop[]
+        Map& map
     );
     bool isSpriteOccludedByWall(const Player& player, const Enemy& e, const Map& map);
 };

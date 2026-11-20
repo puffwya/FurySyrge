@@ -587,9 +587,9 @@ void DoomRenderer::render(uint32_t* pixels, int screenW, int screenH,
     drawBulletHoles(pixels, zBuffer, screenW, screenH, player, map, bulletHoleManager);
 
     // Draw enemies                  
-    spriteRenderer.renderEnemies(pixels, screenW, screenH, em, player, zBuffer, map, colWallTop);
+    spriteRenderer.renderEnemies(pixels, screenW, screenH, em, player, zBuffer, map);
 
     // Draw pickups
     if (pickupManager)
-        pickupManager->renderPickups(pixels, screenW, screenH, player, zBuffer, map, colWallTop);
+        pickupManager->renderPickups(pixels, screenW, screenH, player, zBuffer, map);
 }

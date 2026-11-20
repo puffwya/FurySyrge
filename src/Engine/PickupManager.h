@@ -53,7 +53,7 @@ public:
 
     // Render pickups in world space
     void renderPickups(uint32_t* pixels, int screenW, int screenH,
-                       const Player& player, float* zBuffer, Map& map, float colWallTop[]);
+                       const Player& player, float* zBuffer, Map& map);
 
     void update(Player& player, float deltaTime, Weapon& weapon, AudioManager& audio);
 

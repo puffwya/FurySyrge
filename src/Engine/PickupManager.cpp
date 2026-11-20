@@ -96,8 +96,7 @@ void PickupManager::renderPickups(
     int screenH,
     const Player& player,
     float* zBuffer,
-    Map& map,
-    float colWallTop[]
+    Map& map
 ) {
     struct DrawInfo {
         Pickup* pickup;

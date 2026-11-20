@@ -10,8 +10,7 @@ void SpriteRenderer::renderEnemies(
     EnemyManager& manager,
     const Player& player,
     float* zBuffer,
-    Map& map,
-    float colWallTop[]
+    Map& map
 ) {
     struct DrawInfo {
         Enemy* enemy;
