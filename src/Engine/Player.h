@@ -52,9 +52,12 @@ public:
     const float MAX_SPEED = 6.0f;   // top movement speed
 
     float turnVel = 0.0f;
-    const float TURN_ACCEL = 10.0f;    // how fast turning speeds up
-    const float TURN_FRICTION = 14.0f; // how fast turning slows down
-    const float MAX_TURN_SPEED = 2.5f; // top turning speed
+    // Turning is rad/s: 143 deg/s -> 200 deg/s top rate (playtest request).
+    // ACCEL and FRICTION scale with MAX_TURN_SPEED so the ramp-up (0.25s to
+    // top rate) and ramp-down (0.18s to a stop) keep their original feel.
+    const float TURN_ACCEL = 14.0f;   // how fast turning speeds up
+    const float TURN_FRICTION = 20.0f; // how fast turning slows down
+    const float MAX_TURN_SPEED = 3.5f; // top turning speed
 
     const float JUMP_VELOCITY = 3.0f;
     const float GRAVITY = 9.8f;
