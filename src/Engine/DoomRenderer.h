@@ -27,10 +27,10 @@ public:
 
     void setPickupManager(PickupManager& manager) { pickupManager = &manager; }
 
-    void drawBulletHolesOnWall(
-            const GridSegment& seg, float sxA, float sxB, int screenW,
-            int screenH, uint32_t* pixels,
-            BulletHoleManager& bulletHoleManager, const Player& player, float playerToWallDist);
+    // Stamp bullet holes onto the already rendered world (depth tested).
+    void drawBulletHoles(uint32_t* pixels, float* zBuffer, int screenW, int screenH,
+                         const Player& player, const Map& map,
+                         BulletHoleManager& bulletHoleManager);
 
 private:
     std::vector<GridSegment> m_segments;
@@ -51,12 +51,12 @@ private:
     // Rasterize segment between two projected endpoints (screen Xs / depths)
     void rasterizeSegment(const GridSegment& seg, int mapTileX, int mapTileY,
                           uint32_t* pixels, int screenW, int screenH,
-                          const Player& player, const Map& map, float* zBuffer, const Texture& wallTex, BulletHoleManager& bulletHoleManager);
+                          const Player& player, const Map& map, float* zBuffer, const Texture& wallTex);
 
     // BSP traversal
     void traverseBSP(const BSPNode* node, const Player& player,
                      uint32_t* pixels, int screenW, int screenH,
-                     const Map& map, float* zBuffer, uint8_t* tileDrawn, TextureManager& textureManager, BulletHoleManager& bulletHoleManager);
+                     const Map& map, float* zBuffer, uint8_t* tileDrawn, TextureManager& textureManager);
 
     // small side test helper
     static float sideOfLine(float ax, float ay, float bx, float by, float px, float py);

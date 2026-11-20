@@ -48,73 +48,111 @@ DoomRenderer::DoomRenderer(const std::vector<GridSegment>& segments,
 {
 }
 
-void DoomRenderer::drawBulletHolesOnWall(
-    const GridSegment& seg,
-    float sxA, float sxB,
-    int screenW, int screenH,
+// Bullet holes live on a tile face, identified by (tileX, tileY, dir) plus the
+// fraction along that face as recorded by the shooter. They are drawn once per
+// frame, after the world, clipped to the face they belong to and depth tested
+// so they can never land on nearer geometry (they used to be alpha-blended once
+// per screen column of the owning segment, with no depth test at all).
+void DoomRenderer::drawBulletHoles(
     uint32_t* pixels,
-    BulletHoleManager& bulletHoleManager,
+    float* zBuffer,
+    int screenW,
+    int screenH,
     const Player& player,
-    float playerToWallDist
+    const Map& map,
+    BulletHoleManager& bulletHoleManager
 ) {
+    const float focal = Projection::focalLength(screenW);
+    const float cx = screenW * 0.5f;
+    const float cy = screenH * 0.5f;
+
     for (const BulletHole& hole : bulletHoleManager.getAll()) {
-        // Only draw holes for this tile face
-        if (hole.tileX != seg.tileX || hole.tileY != seg.tileY || hole.dir != seg.dir)
-            continue;
+        const int tx = hole.tileX;
+        const int ty = hole.tileY;
+        const float f = std::clamp(hole.hitFraction, 0.0f, 1.0f);
+
+        // World position of the impact on the face. The fraction orientation
+        // recorded by Player/raycastWall differs per face direction, so it is
+        // resolved explicitly here instead of assuming seg.a -> seg.b.
+        float hx = 0.0f, hy = 0.0f;
+        int nx = tx, ny = ty;
+        switch (hole.dir) {
+            case GridSegment::Dir::West:  hx = float(tx);         hy = float(ty + 1) - f; break;
+            case GridSegment::Dir::East:  hx = float(tx + 1);     hy = float(ty) + f;     break;
+            case GridSegment::Dir::North: hx = float(tx + 1) - f; hy = float(ty);         break;
+            case GridSegment::Dir::South: hx = float(tx + 1) - f; hy = float(ty + 1);     break;
+        }
+        switch (hole.dir) { // neighbour across the face
+            case GridSegment::Dir::North: ny = ty - 1; break;
+            case GridSegment::Dir::South: ny = ty + 1; break;
+            case GridSegment::Dir::West:  nx = tx - 1; break;
+            case GridSegment::Dir::East:  nx = tx + 1; break;
+        }
+
+        float camX, camY;
+        if (!projectPointToCamera(hx, hy, player, camX, camY)) continue;
+        if (camY < 1e-4f) continue;
+
+        // Same face extents as the wall renderer
+        const float hA = map.get(tx, ty).height;
+        const float hB = map.get(nx, ny).height;
+        const float floorZ = std::min(hA, hB);
+        const float ceilZ  = std::max(hA, hB);
+        if (ceilZ - floorZ <= 1e-4f) continue;
+
+        const int px = int(cx + (camX / camY) * focal + 0.5f);
+        if (px < 0 || px >= screenW) continue;
+
+        // Vertical span of the face at this depth (same rounding as the wall)
+        const float faceCeilY   = cy - (ceilZ  - player.z) * focal / camY;
+        const float faceFloorY  = cy - (floorZ - player.z) * focal / camY;
+        const int   faceTopRow    = std::max(0, int(std::ceil(std::min(faceCeilY, faceFloorY))));
+        const int   faceBottomRow = std::min(screenH - 1, int(std::floor(std::max(faceCeilY, faceFloorY))));
+        if (faceBottomRow < faceTopRow) continue;
+
+        // Impact at eye height projects onto the horizon; holeZ carries the
+        // shooter's eye height, so this is the real projection of that point.
+        const int midY = int(cy - (hole.holeZ - player.z) * focal / camY) + hole.verticalOffset;
 
         const auto& visual = bulletHoleManager.getVisual(hole.type);
         const int texW = visual.w;
         const int texH = visual.h;
-                                             
-        // Horizontal position along the wall
-        float sx = (sxA < sxB) 
-                     ? sxA + hole.hitFraction * (sxB - sxA) 
-                     : sxA - hole.hitFraction * (sxA - sxB);
-        int px = int(sx + 0.5f);
-        if (px < 0 || px >= screenW) continue;
-    
-        // Vertical position: relative to player.z but scaled down to screen space
-        float zDiff = hole.holeZ - player.z;
 
-        // Make scale distance-dependent
-        float baseScale = 800.0f;          // tweak experimentally
-        float distanceScale = baseScale / (playerToWallDist);  // farther walls = smaller vertical shift
+        const int x0 = px - texW / 2;
+        const int y0 = midY - texH / 2;
 
-        // Clamp so it never gets too extreme
-        distanceScale = std::clamp(distanceScale, 50.0f, 600.0f);
-
-        int midY = int(screenH / 2 - zDiff * distanceScale) + hole.verticalOffset;
-
-        // Draw the bullet hole texture
-        for (int ty = 0; ty < texH; ++ty) {
-            int py = midY - texH/2 + ty;
+        for (int row = 0; row < texH; ++row) {
+            const int py = y0 + row;
+            if (py < faceTopRow || py > faceBottomRow) continue; // clip to the face
             if (py < 0 || py >= screenH) continue;
 
-            for (int tx = 0; tx < texW; ++tx) {
-                int pxOffset = px - texW/2 + tx;
-                if (pxOffset < 0 || pxOffset >= screenW) continue;
+            for (int col = 0; col < texW; ++col) {
+                const int pxx = x0 + col;
+                if (pxx < 0 || pxx >= screenW) continue;
 
-                uint32_t texPixel = visual.pixels[ty * texW + tx];
-                uint8_t alpha = texPixel >> 24;
-                if (alpha == 0) continue; // fully transparent
+                const int idx = py * screenW + pxx;
+                if (zBuffer[idx] + 1e-3f < camY) continue; // something nearer in front
 
-                // simple alpha blend (assuming ARGB)
-                uint32_t dst = pixels[py * screenW + pxOffset];
+                const uint32_t texPixel = visual.pixels[row * texW + col];
+                const uint8_t alpha = texPixel >> 24;
+                if (alpha == 0) continue;
 
-                uint8_t srcR = (texPixel >> 16) & 0xFF;
-                uint8_t srcG = (texPixel >> 8) & 0xFF;
-                uint8_t srcB = texPixel & 0xFF;
+                const uint32_t dst = pixels[idx];
 
-                uint8_t dstR = (dst >> 16) & 0xFF;
-                uint8_t dstG = (dst >> 8) & 0xFF;
-                uint8_t dstB = dst & 0xFF;
+                const uint8_t srcR = (texPixel >> 16) & 0xFF;
+                const uint8_t srcG = (texPixel >> 8) & 0xFF;
+                const uint8_t srcB = texPixel & 0xFF;
 
-                float a = alpha / 255.0f;
-                uint8_t outR = uint8_t(srcR * a + dstR * (1.0f - a));
-                uint8_t outG = uint8_t(srcG * a + dstG * (1.0f - a));
-                uint8_t outB = uint8_t(srcB * a + dstB * (1.0f - a));
+                const uint8_t dstR = (dst >> 16) & 0xFF;
+                const uint8_t dstG = (dst >> 8) & 0xFF;
+                const uint8_t dstB = dst & 0xFF;
 
-                pixels[py * screenW + pxOffset] = (0xFF << 24) | (outR << 16) | (outG << 8) | outB;
+                const float a = alpha / 255.0f;
+                const uint8_t outR = uint8_t(srcR * a + dstR * (1.0f - a));
+                const uint8_t outG = uint8_t(srcG * a + dstG * (1.0f - a));
+                const uint8_t outB = uint8_t(srcB * a + dstB * (1.0f - a));
+
+                pixels[idx] = (0xFFu << 24) | (outR << 16) | (outG << 8) | outB;
             }
         }
     }
@@ -290,7 +328,7 @@ bool DoomRenderer::projectPointToCamera(float wx, float wy, const Player& player
 // seg endpoints: seg.a (wx,wy) -> seg.b
 void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int mapTileY,
                                      uint32_t* pixels, int screenW, int screenH,
-                                     const Player& player, const Map& map, float* zBuffer, const Texture& wallTex, BulletHoleManager& bulletHoleManager)
+                                     const Player& player, const Map& map, float* zBuffer, const Texture& wallTex)
 {
     // Live face extents: elevation on both sides, not "thickness".
     float floorZ, ceilZ;
@@ -359,17 +397,15 @@ void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int ma
         int drawEnd = std::min(screenH - 1, int(std::floor(colFloorY)));
         if (drawEnd < 0 || drawStart >= screenH) continue;
 
-        // Compute world position along wall segment
-        float wallWorldX = seg.a.x + t * (seg.b.x - seg.a.x);
-        float wallWorldY = seg.a.y + t * (seg.b.y - seg.a.y);
-
-        // True distance from player to wall hit
-        float playerToWallDist = std::hypot(wallWorldX - player.x, wallWorldY - player.y);
-
-        // Fractional horizontal coordinate along the wall segment (0 -> 1)
-        float wallLength = std::hypot(seg.b.x - seg.a.x, seg.b.y - seg.a.y);
-        float wallDist = std::hypot(wallWorldX - seg.a.x, wallWorldY - seg.a.y);
-        float u = wallDist / (wallLength + 1e-6f);
+        // Fractional horizontal coordinate along the wall segment (0 -> 1).
+        // Camera-space depth is affine in the segment's world parameter, so
+        // invert the projection instead of treating the screen-space t as a
+        // world-space fraction (which skewed texture U on angled walls).
+        float u;
+        if (std::fabs(b_camY - a_camY) > 1e-6f)
+            u = std::clamp((depth - a_camY) / (b_camY - a_camY), 0.0f, 1.0f);
+        else
+            u = t; // segment parallel to the image plane: screen X is linear in world X
 
         // Draw textured column with per-pixel depth test
         uint32_t* px = pixels + drawStart * screenW + sx;
@@ -389,13 +425,6 @@ void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int ma
             }
             px += screenW;
             zPtr += screenW;
-        }
-
-        drawBulletHolesOnWall(seg, sxA, sxB, screenW, screenH, pixels, bulletHoleManager, player, playerToWallDist);
-
-        // Track wall top for sprite clipping
-        if (ceilZ > 0.0f) { // Only blocking walls
-            colWallTop[sx] = colCeilY;
         }
     }
 }
@@ -418,8 +447,7 @@ void DoomRenderer::traverseBSP(
     const Map& map,
     float* zBuffer,
     uint8_t* tileDrawn,
-    TextureManager& textureManager,
-    BulletHoleManager& bulletHoleManager
+    TextureManager& textureManager
 ) {
     if (!node) return;
 
@@ -435,7 +463,7 @@ void DoomRenderer::traverseBSP(
 
     // Traverse far side first
     if (second)
-        traverseBSP(second, player, pixels, screenW, screenH, map, zBuffer, tileDrawn, textureManager, bulletHoleManager);
+        traverseBSP(second, player, pixels, screenW, screenH, map, zBuffer, tileDrawn, textureManager);
 
     // Pass 1: vertical walls only
     for (const auto& seg : node->onPlane) {
@@ -462,7 +490,7 @@ void DoomRenderer::traverseBSP(
 
         // Draw vertical walls (normal or pit)
         if (h != 0.0f) {
-            rasterizeSegment(seg, tx, ty, pixels, screenW, screenH, player, map, zBuffer, *wallTex, bulletHoleManager);
+            rasterizeSegment(seg, tx, ty, pixels, screenW, screenH, player, map, zBuffer, *wallTex);
         }
     }
 
@@ -519,7 +547,7 @@ void DoomRenderer::traverseBSP(
 
     // Traverse near side last
     if (first)
-        traverseBSP(first, player, pixels, screenW, screenH, map, zBuffer, tileDrawn, textureManager, bulletHoleManager);
+        traverseBSP(first, player, pixels, screenW, screenH, map, zBuffer, tileDrawn, textureManager);
 }
 
 // Main render entry
@@ -540,7 +568,7 @@ void DoomRenderer::render(uint32_t* pixels, int screenW, int screenH,
     tileDrawn.assign(Map::SIZE * Map::SIZE, 0);
 
     // Traverse BSP and draw segments front-to-back
-    traverseBSP(m_bspRoot.get(), player, pixels, screenW, screenH, map, zBuffer, tileDrawn.data(), textureManager, bulletHoleManager);
+    traverseBSP(m_bspRoot.get(), player, pixels, screenW, screenH, map, zBuffer, tileDrawn.data(), textureManager);
 
     // Fill Ceiling
     for (int y = 0; y < screenH / 2; ++y)
@@ -552,6 +580,9 @@ void DoomRenderer::render(uint32_t* pixels, int screenW, int screenH,
                 pixels[idx] = CEIL_COLOR;
         }
     }
+
+    // Bullet holes: stamped once, clipped to their face and depth tested
+    drawBulletHoles(pixels, zBuffer, screenW, screenH, player, map, bulletHoleManager);
 
     // Draw enemies                  
     spriteRenderer.renderEnemies(pixels, screenW, screenH, em, player, zBuffer, map, colWallTop);
