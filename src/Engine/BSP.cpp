@@ -88,21 +88,32 @@ static void splitSegmentIfCross(const Segment& seg, const Vec2& A, const Vec2& B
     Vec2 dir = sub(p1, p0);
     Vec2 Pi = add(p0, mul(dir, t));
 
-    // Build two segments
-    Segment sA{ {p0.x, p0.y}, {Pi.x, Pi.y}, seg.tileX, seg.tileY };
-    Segment sB{ {Pi.x, Pi.y}, {p1.x, p1.y}, seg.tileX, seg.tileY };
+    // Build two segments, keeping all of the original segment's data
+    // (tileX/tileY, frontHeight/backHeight, dir). Aggregate-initialising only
+    // the endpoints used to zero the rest, which made every split piece render
+    // with height 0 and made bullet holes miss (dir reset to North).
+    Segment sA = seg; sA.a = p0; sA.b = Pi;
+    Segment sB = seg; sB.a = Pi; sB.b = p1;
+
+    const bool aDegenerate = (fabs(sA.a.x - sA.b.x) < EPS && fabs(sA.a.y - sA.b.y) < EPS);
+    const bool bDegenerate = (fabs(sB.a.x - sB.b.x) < EPS && fabs(sB.a.y - sB.b.y) < EPS);
 
     // determine which portion goes to which side by checking midpoints
     Vec2 midA = mul(add(p0, Pi), 0.5f);
     Vec2 midB = mul(add(Pi, p1), 0.5f);
 
-    float sideA = sideOfLine(A, B, midA);
-    float sideB = sideOfLine(A, B, midB);
-
-    if (sideA > 0) outFront.push_back(sA); else if (fabs(sideA) < EPS) outOnPlane.push_back(sA); else 
-outBack.push_back(sA);
-    if (sideB > 0) outFront.push_back(sB); else if (fabs(sideB) < EPS) outOnPlane.push_back(sB); else 
-outBack.push_back(sB);
+    if (!aDegenerate) {
+        float sideA = sideOfLine(A, B, midA);
+        if (sideA > 0) outFront.push_back(sA);
+        else if (fabs(sideA) < EPS) outOnPlane.push_back(sA);
+        else outBack.push_back(sA);
+    }
+    if (!bDegenerate) {
+        float sideB = sideOfLine(A, B, midB);
+        if (sideB > 0) outFront.push_back(sB);
+        else if (fabs(sideB) < EPS) outOnPlane.push_back(sB);
+        else outBack.push_back(sB);
+    }
 }
 
 // Choose a splitter segment index. Current heuristic: pick segment with longest length (reduce splits)
