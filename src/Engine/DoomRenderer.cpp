@@ -543,11 +543,15 @@ void DoomRenderer::render(uint32_t* pixels, int screenW, int screenH,
             if (h < 0.0f && cell.isLava) {
                 topTex = &lavaTex;      // animated lava pit
             }
-            else if (cell.type == Map::TileType::Wall && h > 0.0f && h < cell.cHeight) {
-                topTex = &wallTopTex;   // top of a partial wall
+            else if (h > 0.0f) {
+                // Restored after playtest: every raised surface uses the
+                // wall-top texture - the 0.9 second floor, the stairs and the
+                // platforms all looked right with it. (Full-height walls never
+                // get here: their top is culled by the cHeight check above.)
+                topTex = &wallTopTex;
             }
             else {
-                topTex = &floorTex;     // walkable floor, raised floors, stairs
+                topTex = &floorTex;     // flat floor (height 0)
             }
 
             renderWorldTileRasterized(pixels, zBuffer, screenW, screenH, player,
