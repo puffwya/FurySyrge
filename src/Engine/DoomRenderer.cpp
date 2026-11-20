@@ -187,7 +187,7 @@ void DoomRenderer::renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, i
     float timeSec = float(SDL_GetTicks()) / 1000.0f;
 
     // Precompute lava animation for this tile
-    bool isLava = map.get(wx, wy).isLava;
+    bool isLava = self.isLava;
     float lavaOffsetX = 0.0f, lavaOffsetY = 0.0f;
     float lavaFlicker = 1.0f;
 
@@ -439,7 +439,10 @@ float DoomRenderer::sideOfLine(float ax, float ay, float bx, float by, float px,
     return vx * wy - vy * wx;
 }
 
-// traverse BSP front to back relative to player's position 
+// traverse BSP front to back relative to player's position
+// Vertical wall faces only - floors, pits and wall tops are rasterized in a
+// flat pass over the whole grid (see render()), which no longer needs any
+// per-segment bookkeeping (tileDrawn and its pit hack are gone).
 void DoomRenderer::traverseBSP(
     const BSPNode* node,
     const Player& player,
@@ -448,7 +451,6 @@ void DoomRenderer::traverseBSP(
     int screenH,
     const Map& map,
     float* zBuffer,
-    uint8_t* tileDrawn,
     TextureManager& textureManager
 ) {
     if (!node) return;
@@ -465,9 +467,8 @@ void DoomRenderer::traverseBSP(
 
     // Traverse far side first
     if (second)
-        traverseBSP(second, player, pixels, screenW, screenH, map, zBuffer, tileDrawn, textureManager);
+        traverseBSP(second, player, pixels, screenW, screenH, map, zBuffer, textureManager);
 
-    // Pass 1: vertical walls only
     for (const auto& seg : node->onPlane) {
         int tx = seg.tileX;
         int ty = seg.tileY;
@@ -475,8 +476,9 @@ void DoomRenderer::traverseBSP(
         if (tx < 0 || tx >= Map::SIZE || ty < 0 || ty >= Map::SIZE)
             continue;
 
+        // The segment is owned by the higher of the two tiles, so its flags
+        // decide the texture (sliding / exit doors keep working).
         const Map::Cell& cell = map.get(tx, ty);
-        float h = cell.height;
 
         const Texture* wallTex = nullptr;
 
@@ -490,59 +492,14 @@ void DoomRenderer::traverseBSP(
             wallTex = &textureManager.get("wall1");
         }
 
-        // Draw vertical walls (normal or pit)
-        if (h != 0.0f) {
-            rasterizeSegment(seg, tx, ty, pixels, screenW, screenH, player, map, zBuffer, *wallTex);
-        }
-    }
-
-    // Pass 2: floors, pits, wall tops
-    for (const auto& seg : node->onPlane) {
-        int tx = seg.tileX;
-        int ty = seg.tileY;
-
-        if (tx < 0 || tx >= Map::SIZE || ty < 0 || ty >= Map::SIZE)
-            continue;
-
-        int idx = tx + ty * Map::SIZE;
-        if (tileDrawn[idx])
-            continue;
-        tileDrawn[idx] = true;
-
-        const Map::Cell& cell = map.get(tx, ty);
-        float h = cell.height;
-
-        const Texture* floorTex = nullptr;
-
-        if (h < 0.0f && cell.isLava) {
-            // Animated lava pit
-            floorTex = &textureManager.get("lava1");
-        }
-        else if (cell.type == Map::TileType::Wall && h > 0.0f && h < cell.cHeight) {
-            // Top of a partial wall (e.g. a sliding wall mid-animation)
-            floorTex = &textureManager.get("wallTop1");
-        }
-        else {
-            // Walkable floor - including raised floors, platforms and stairs,
-            // which used to be sent to wallTop1 just because 0 < h != 1.0
-            floorTex = &textureManager.get("floor1");
-        }
-
-        renderWorldTileRasterized(
-            pixels, zBuffer,
-            screenW, screenH,
-            player,
-            float(tx), float(ty),
-            1.0f,
-            h,
-            *floorTex,
-            map
-        );
+        // No height gate: the owner can legitimately be height 0 (the tile
+        // above a pit). Coplanar faces are rejected inside rasterizeSegment.
+        rasterizeSegment(seg, tx, ty, pixels, screenW, screenH, player, map, zBuffer, *wallTex);
     }
 
     // Traverse near side last
     if (first)
-        traverseBSP(first, player, pixels, screenW, screenH, map, zBuffer, tileDrawn, textureManager);
+        traverseBSP(first, player, pixels, screenW, screenH, map, zBuffer, textureManager);
 }
 
 // Main render entry
@@ -559,11 +516,38 @@ void DoomRenderer::render(uint32_t* pixels, int screenW, int screenH,
     for (int i = 0; i < screenW * screenH; ++i)
         zBuffer[i] = 1e6f;
 
-    static std::vector<uint8_t> tileDrawn;
-    tileDrawn.assign(Map::SIZE * Map::SIZE, 0);
+    // Vertical wall faces, BSP front-to-back
+    traverseBSP(m_bspRoot.get(), player, pixels, screenW, screenH, map, zBuffer, textureManager);
 
-    // Traverse BSP and draw segments front-to-back
-    traverseBSP(m_bspRoot.get(), player, pixels, screenW, screenH, map, zBuffer, tileDrawn.data(), textureManager);
+    // Floors, pits and wall tops: one rasterization per tile, independent of
+    // the BSP. Every write in this renderer is strictly-closer-only, so the
+    // z-buffer converges to the same image in any draw order - which is why
+    // the old per-node tileDrawn bookkeeping (and its pit hack) is gone.
+    const Texture& lavaTex = textureManager.get("lava1");
+    const Texture& wallTopTex = textureManager.get("wallTop1");
+    const Texture& floorTex = textureManager.get("floor1");
+
+    for (int ty = 0; ty < Map::SIZE; ++ty) {
+        for (int tx = 0; tx < Map::SIZE; ++tx) {
+            const Map::Cell& cell = map.get(tx, ty);
+            const float h = cell.height;
+
+            const Texture* topTex = nullptr;
+
+            if (h < 0.0f && cell.isLava) {
+                topTex = &lavaTex;      // animated lava pit
+            }
+            else if (cell.type == Map::TileType::Wall && h > 0.0f && h < cell.cHeight) {
+                topTex = &wallTopTex;   // top of a partial wall
+            }
+            else {
+                topTex = &floorTex;     // walkable floor, raised floors, stairs
+            }
+
+            renderWorldTileRasterized(pixels, zBuffer, screenW, screenH, player,
+                                      float(tx), float(ty), 1.0f, h, *topTex, map);
+        }
+    }
 
     // Fill Ceiling
     for (int y = 0; y < screenH / 2; ++y)
