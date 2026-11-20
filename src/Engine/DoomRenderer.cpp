@@ -1,4 +1,5 @@
 #include "DoomRenderer.h"
+#include "Projection.h"
 #include <cmath>
 #include <algorithm>
 #include <cassert>
@@ -138,6 +139,10 @@ void DoomRenderer::renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, i
     const float cy = screenH * 0.5f;
     const float EPS = 1e-6f;
 
+    // Shared projection distance (see Projection.h) - was recomputed with its
+    // own tan() call inside the column loop before.
+    const float projPlaneDist = Projection::focalLength(screenW);
+
     // Get time in seconds for animation
     float timeSec = float(SDL_GetTicks()) / 1000.0f;
 
@@ -198,8 +203,6 @@ void DoomRenderer::renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, i
         if (tmax <= 1e-5f) continue; // fully behind camera
 
         // Project vertical position
-        float fovRad = 66.0f * (3.14159265f / 180.0f);
-        float projPlaneDist = (screenW * 0.5f) / tanf(fovRad * 0.5f);
         float eyeHeight = player.z - tileHeight;
 
         float screenY_enter = cy - ((tileHeight - player.z) * projPlaneDist / t_enter);
@@ -280,8 +283,10 @@ bool DoomRenderer::projectPointToCamera(float wx, float wy, const Player& player
     return out_camY > 1e-5f; // in front of camera
 }
 
-// Rasterize a single segment (as vertical wall) in screen columns
-// approximate per-column depth by linear interpolation between endpoints' camY
+// Rasterize a single segment (as vertical wall) in screen columns.
+// Endpoint screen positions are interpolated in screen space (a straight
+// world line projects to a straight screen line); depth is interpolated as
+// 1/depth, which is the quantity that is linear in screen X.
 // seg endpoints: seg.a (wx,wy) -> seg.b
 void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int mapTileY,
                                      uint32_t* pixels, int screenW, int screenH,
@@ -315,9 +320,13 @@ void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int ma
         }
     }
 
-    // Project to screen X
-    float sxA = (a_camX / a_camY) * (screenW * 0.5f) + (screenW * 0.5f);
-    float sxB = (b_camX / b_camY) * (screenW * 0.5f) + (screenW * 0.5f);
+    // Project to screen X (same focal length as the Y projection below)
+    const float focal = Projection::focalLength(screenW);
+    const float cx = screenW * 0.5f;
+    const float cy = screenH * 0.5f;
+
+    float sxA = (a_camX / a_camY) * focal + cx;
+    float sxB = (b_camX / b_camY) * focal + cx;
 
     // Skip if entirely off-screen horizontally
     if ((sxA < -screenW && sxB < -screenW) || (sxA > 2*screenW && sxB > 2*screenW)) return;
@@ -326,11 +335,11 @@ void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int ma
     int x1 = std::clamp(int(std::ceil (std::max(sxA, sxB))), 0, screenW - 1);
     if (x1 < x0) std::swap(x0, x1);
 
-    // Project top/bottom for endpoints
-    float a_sy_floor = (screenH * 0.5f) - (floorZ - player.z) * (screenH / a_camY);
-    float a_sy_ceiling = (screenH * 0.5f) - (ceilZ - player.z) * (screenH / a_camY);
-    float b_sy_floor = (screenH * 0.5f) - (floorZ - player.z) * (screenH / b_camY);
-    float b_sy_ceiling = (screenH * 0.5f) - (ceilZ - player.z) * (screenH / b_camY);
+    // Project top/bottom for endpoints (same focal length as screen X)
+    float a_sy_floor   = cy - (floorZ - player.z) * (focal / a_camY);
+    float a_sy_ceiling = cy - (ceilZ  - player.z) * (focal / a_camY);
+    float b_sy_floor   = cy - (floorZ - player.z) * (focal / b_camY);
+    float b_sy_ceiling = cy - (ceilZ  - player.z) * (focal / b_camY);
 
     // 1/depth is linear in screen X along a world-space line, depth itself is not.
     const float invA = 1.0f / a_camY;

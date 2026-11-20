@@ -1,5 +1,6 @@
 #include "Player.h"
 #include "WeaponManager.h"
+#include "Projection.h"
 
 void Player::renderDamageFlash(uint32_t* pixels, int screenW, int screenH, float intensity)
 {
@@ -648,7 +649,9 @@ void Player::shoot(EnemyManager& manager, WeaponManager& weaponManager, Map& map
     float dirX = std::cos(angle);
     float dirY = std::sin(angle);
 
-    const float fovScale = 0.66f;
+    // Same camera plane as the sprite renderers, so the crosshair line of fire
+    // lines up with what is actually drawn (was a hardcoded 0.66).
+    const float fovScale = Projection::planeLength();
     float planeX = -dirY * fovScale;
     float planeY =  dirX * fovScale;
 

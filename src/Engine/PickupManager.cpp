@@ -1,6 +1,7 @@
 #include "PickupManager.h"
 #include "Player.h"
 #include "Map.h"
+#include "Projection.h"
 #include <algorithm>
 #include <cmath>
 #include <iostream>
@@ -122,11 +123,12 @@ void PickupManager::renderPickups(
         [](const DrawInfo& a, const DrawInfo& b) { return a.dist > b.dist; }
     );
 
-    // Camera vectors
+    // Camera vectors - must match the world projection (see Projection.h)
     float dirX = std::cos(player.angle);
     float dirY = std::sin(player.angle);
-    float planeX = -dirY * 0.66f;
-    float planeY = dirX * 0.66f;
+    float planeX = -dirY * Projection::planeLength();
+    float planeY = dirX * Projection::planeLength();
+    const float focal = Projection::focalLength(screenW);
 
     float invDet = 1.0f / (planeX * dirY - dirX * planeY);
 
@@ -149,15 +151,15 @@ void PickupManager::renderPickups(
 
         // Vertical scaling
         float pickupHeight = 0.25f; // world units
-        int spriteH = std::max(1, int(screenH / transformY * pickupHeight));
+        int spriteH = std::max(1, int(focal / transformY * pickupHeight));
         int spriteW = std::max(1, int(spriteH * (float(v.w) / float(v.h)))); // preserve aspect ratio
 
         // Vertical position (z offset)
         float pickupBottom = p->z - player.z;
         float pickupTop = p->z + pickupHeight - player.z;
 
-        int drawStartY = int(screenH / 2 - pickupTop / transformY * screenH);
-        int drawEndY = int(screenH / 2 - pickupBottom / transformY * screenH);
+        int drawStartY = int(screenH / 2 - pickupTop / transformY * focal);
+        int drawEndY = int(screenH / 2 - pickupBottom / transformY * focal);
         int drawStartX = screenX - spriteW / 2;
         int drawEndX = drawStartX + spriteW;
 
