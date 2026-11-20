@@ -11,6 +11,36 @@ static constexpr float WALL_WORLD_HEIGHT = 1.0f; // world units for a full-heigh
 
 SpriteRenderer spriteRenderer;
 
+// Vertical extent of the face between a tile and the tile across the segment.
+//
+// Map::height is an ABSOLUTE top elevation on both sides (0 = floor,
+// 1 = full wall, 0<h<1 = step, <0 = pit), so a face always spans
+// [min(hA, hB), max(hA, hB)]. Returns false when the two surfaces are
+// coplanar, i.e. there is no vertical face at all.
+static bool segmentFaceExtents(const Map& map, const GridSegment& seg,
+                               int tileX, int tileY,
+                               float& floorZ, float& ceilZ)
+{
+    // Neighbour across the segment, derived from geometry (not `dir`) so it
+    // stays correct for segments the BSP has split in two.
+    int nx = tileX;
+    int ny = tileY;
+    if (std::fabs(seg.a.x - seg.b.x) < 1e-4f) {          // vertical edge on x = seg.a.x
+        nx = (seg.a.x < tileX + 0.5f) ? tileX - 1 : tileX + 1;
+    } else {                                              // horizontal edge on y = seg.a.y
+        ny = (seg.a.y < tileY + 0.5f) ? tileY - 1 : tileY + 1;
+    }
+
+    const float hA = map.get(tileX, tileY).height;
+    // Map::get clamps out-of-range coordinates, so map-border tiles compare
+    // against themselves and correctly produce no outward face.
+    const float hB = map.get(nx, ny).height;
+
+    floorZ = std::min(hA, hB);
+    ceilZ  = std::max(hA, hB);
+    return (ceilZ - floorZ) > 1e-4f;
+}
+
 DoomRenderer::DoomRenderer(const std::vector<GridSegment>& segments,
                            std::unique_ptr<BSPNode> bspRoot)
     : m_segments(segments), m_bspRoot(std::move(bspRoot))
@@ -257,6 +287,11 @@ void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int ma
                                      uint32_t* pixels, int screenW, int screenH,
                                      const Player& player, const Map& map, float* zBuffer, const Texture& wallTex, BulletHoleManager& bulletHoleManager)
 {
+    // Live face extents: elevation on both sides, not "thickness".
+    float floorZ, ceilZ;
+    if (!segmentFaceExtents(map, seg, mapTileX, mapTileY, floorZ, ceilZ))
+        return; // coplanar surfaces -> no vertical face (kills the phantom slabs)
+
     // Project endpoints to camera space
     float a_camX, a_camY, b_camX, b_camY;
     bool aFront = projectPointToCamera(seg.a.x, seg.a.y, player, a_camX, a_camY);
@@ -290,11 +325,6 @@ void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int ma
     int x0 = std::clamp(int(std::floor(std::min(sxA, sxB))), 0, screenW - 1);
     int x1 = std::clamp(int(std::ceil (std::max(sxA, sxB))), 0, screenW - 1);
     if (x1 < x0) std::swap(x0, x1);
-
-    // Wall vertical extent: base sits on the lower of the two adjacent floor heights,
-    // and the wall's own height magnitude is abs(frontHeight).
-    float floorZ = std::min(seg.frontHeight, seg.backHeight);
-    float ceilZ  = floorZ + std::abs(seg.frontHeight);
 
     // Project top/bottom for endpoints
     float a_sy_floor = (screenH * 0.5f) - (floorZ - player.z) * (screenH / a_camY);
