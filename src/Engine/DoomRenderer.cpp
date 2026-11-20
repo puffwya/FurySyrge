@@ -332,11 +332,15 @@ void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int ma
     float b_sy_floor = (screenH * 0.5f) - (floorZ - player.z) * (screenH / b_camY);
     float b_sy_ceiling = (screenH * 0.5f) - (ceilZ - player.z) * (screenH / b_camY);
 
+    // 1/depth is linear in screen X along a world-space line, depth itself is not.
+    const float invA = 1.0f / a_camY;
+    const float invB = 1.0f / b_camY;
+
     for (int sx = x0; sx <= x1; ++sx) {
         float t = (fabs(sxB - sxA) > 1e-6f) ? (sx - sxA) / (sxB - sxA) : 0.0f;
         t = std::clamp(t, 0.0f, 1.0f);
 
-        float depth = a_camY + t * (b_camY - a_camY);
+        float depth = 1.0f / (invA + t * (invB - invA));
         if (depth <= 0.0001f) continue;
 
         float colFloorY = a_sy_floor + t * (b_sy_floor - a_sy_floor);
