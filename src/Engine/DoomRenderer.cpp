@@ -17,24 +17,6 @@ DoomRenderer::DoomRenderer(const std::vector<GridSegment>& segments,
 {
 }
 
-// small inline draws a vertical column segment
-void DoomRenderer::drawSegmentColumnSolid(uint32_t* pixels, int screenW, int screenH,
-                                          int sx, int drawStart, int drawEnd, uint32_t color)
-{
-    if (sx < 0 || sx >= screenW) return;
-
-    // Swap if inverted
-    if (drawStart > drawEnd) std::swap(drawStart, drawEnd);
-
-    // Clamp to screen bounds
-    drawStart = std::clamp(drawStart, 0, screenH - 1);
-    drawEnd   = std::clamp(drawEnd, 0, screenH - 1);
-
-    for (int y = drawStart; y <= drawEnd; ++y) {
-        pixels[y * screenW + sx] = color;
-    }
-}
-
 void DoomRenderer::drawBulletHolesOnWall(
     const GridSegment& seg,
     float sxA, float sxB,
@@ -309,10 +291,10 @@ void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int ma
     int x1 = std::clamp(int(std::ceil (std::max(sxA, sxB))), 0, screenW - 1);
     if (x1 < x0) std::swap(x0, x1);
 
-    // Wall heights for this tile
-    float tileH = map.get(mapTileX, mapTileY).height;
-    float floorZ = (tileH < 0.0f) ? tileH : 0.0f;
-    float ceilZ = (tileH < 0.0f) ? 0.0f : tileH;
+    // Wall vertical extent: base sits on the lower of the two adjacent floor heights,
+    // and the wall's own height magnitude is abs(frontHeight).
+    float floorZ = std::min(seg.frontHeight, seg.backHeight);
+    float ceilZ  = floorZ + std::abs(seg.frontHeight);
 
     // Project top/bottom for endpoints
     float a_sy_floor = (screenH * 0.5f) - (floorZ - player.z) * (screenH / a_camY);
@@ -369,7 +351,7 @@ void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int ma
         drawBulletHolesOnWall(seg, sxA, sxB, screenW, screenH, pixels, bulletHoleManager, player, playerToWallDist);
 
         // Track wall top for sprite clipping
-        if (tileH > 0.0f) { // Only blocking walls
+        if (ceilZ > 0.0f) { // Only blocking walls
             colWallTop[sx] = colCeilY;
         }
     }

@@ -21,20 +21,12 @@ std::vector<GridSegment> buildSegmentsFromGrid(const Map& map)
 
             const float h = map.get(x, y).height;
 
-            edges.push_back({
-                { x + 0.5f, y + 0.5f },
-                { x + 0.5f, y + 0.5f },
-                x, y,
-                h, h,
-                GridSegment::Dir::North
-            });
-
             // Top edge: north
             {
                 bool neigh = isWall(map, x, y-1);
-                if (!neigh || map.get(x,y-1).height > 0.0f) {
+                if (!neigh || map.get(x,y-1).height != cell.height) {
                     float frontH = cell.height;
-                    float backH  = neigh ? map.get(x, y-1).height : 0.0f;
+                    float backH  = map.get(x, y-1).height;
 
                     edges.push_back({
                         {float(x),   float(y)},
@@ -47,9 +39,9 @@ std::vector<GridSegment> buildSegmentsFromGrid(const Map& map)
             // Bottom edge: south
             {
                 bool neigh = isWall(map, x, y+1);
-                if (!neigh || map.get(x,y+1).height > 0.0f) {
+                if (!neigh || map.get(x,y+1).height != cell.height) {
                     float frontH = cell.height;
-                    float backH  = neigh ? map.get(x, y+1).height : 0.0f;
+                    float backH  = map.get(x, y+1).height;
 
                     edges.push_back({
                         {float(x+1), float(y+1)},
@@ -62,9 +54,9 @@ std::vector<GridSegment> buildSegmentsFromGrid(const Map& map)
             // Left edge: west
             {
                 bool neigh = isWall(map, x-1, y);
-                if (!neigh || map.get(x-1,y).height > 0.0f) {
+                if (!neigh || map.get(x-1,y).height != cell.height) {
                     float frontH = cell.height;
-                    float backH  = neigh ? map.get(x-1, y).height : 0.0f;
+                    float backH  = map.get(x-1, y).height;
 
                     edges.push_back({
                         {float(x),   float(y+1)},
@@ -77,9 +69,9 @@ std::vector<GridSegment> buildSegmentsFromGrid(const Map& map)
             // Right edge: east
             {
                 bool neigh = isWall(map, x+1, y);
-                if (!neigh || map.get(x+1,y).height > 0.0f) {
+                if (!neigh || map.get(x+1,y).height != cell.height) {
                     float frontH = cell.height;
-                    float backH  = neigh ? map.get(x+1, y).height : 0.0f;
+                    float backH  = map.get(x+1, y).height;
 
                     edges.push_back({
                         {float(x+1), float(y)},

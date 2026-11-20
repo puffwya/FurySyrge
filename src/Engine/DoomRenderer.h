@@ -44,9 +44,6 @@ private:
                                       const Texture& floorTex, const Map& map);
 
     // helper drawing
-    void drawSegmentColumnSolid(uint32_t* pixels, int screenW, int screenH,
-                                int sx, int drawStart, int drawEnd, uint32_t color);
-
     // Project endpoints to camera space...returns false if completely behind camera
     bool projectPointToCamera(float wx, float wy, const Player& player,
                               float& out_camX, float& out_camY);
