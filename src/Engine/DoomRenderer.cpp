@@ -6,10 +6,6 @@
 #include <limits>
 #include <iostream>
 
-// constants
-static constexpr float EPS = 1e-6f;
-static constexpr float WALL_WORLD_HEIGHT = 1.0f; // world units for a full-height wall
-
 SpriteRenderer spriteRenderer;
 
 // Vertical extent of the face between a tile and the tile across the segment.
@@ -163,7 +159,12 @@ void DoomRenderer::renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, i
                                              float wx, float wy, float sizeWorld, float tileHeight,
                                              const Texture& floorTex, const Map& map)
 {
-    if (tileHeight == 1.0f) return; // no need to render full-height wall tops
+    // A top surface only exists when there is open space above it: for a
+    // full-height wall the top coincides with the ceiling and is never visible.
+    // (was an exact `tileHeight == 1.0f` compare, which also skipped the top of
+    // a 1.0 wall standing next to a 0.9 floor, leaving a see-through ledge.)
+    const Map::Cell& self = map.get(int(wx), int(wy));
+    if (tileHeight >= self.cHeight - 1e-4f) return;
 
     const float minX = wx;
     const float maxX = wx + sizeWorld;
@@ -520,16 +521,17 @@ void DoomRenderer::traverseBSP(
 
         const Texture* floorTex = nullptr;
 
-        if (h < 0.0f) {
-            // Pit floor
+        if (h < 0.0f && cell.isLava) {
+            // Animated lava pit
             floorTex = &textureManager.get("lava1");
         }
-        else if (h > 0.0f && h != WALL_WORLD_HEIGHT) {
-            // Wall top
+        else if (cell.type == Map::TileType::Wall && h > 0.0f && h < cell.cHeight) {
+            // Top of a partial wall (e.g. a sliding wall mid-animation)
             floorTex = &textureManager.get("wallTop1");
         }
         else {
-            // Normal flat floor
+            // Walkable floor - including raised floors, platforms and stairs,
+            // which used to be sent to wallTop1 just because 0 < h != 1.0
             floorTex = &textureManager.get("floor1");
         }
 
