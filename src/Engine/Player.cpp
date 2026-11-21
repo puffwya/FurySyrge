@@ -159,19 +159,30 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
     if (keys[SDL_SCANCODE_W]) {
         inputX += std::cos(angle);
         inputY += std::sin(angle);
-        if (onGround == true && footstepTimer <= 0.0f) {
-            audio.playSFX("walk");
-            footstepTimer = 0.30f;
-        }
     }
     // Move backwards
     if (keys[SDL_SCANCODE_S]) {
         inputX -= std::cos(angle);
         inputY -= std::sin(angle);
-        if (onGround == true && footstepTimer <= 0.0f) {
-            audio.playSFX("walk");
-            footstepTimer = 0.30f;
-        }
+    }
+
+    // Strafe: A/D are pure lateral movement now - looking is the mouse
+    // (arrow keys stay on as the keyboard fallback in the turning block)
+    if (keys[SDL_SCANCODE_A]) {
+        inputX += std::sin(angle);   // left = facing rotated -90 deg
+        inputY -= std::cos(angle);
+    }
+    if (keys[SDL_SCANCODE_D]) {
+        inputX -= std::sin(angle);   // right = facing rotated +90 deg
+        inputY += std::cos(angle);
+    }
+
+    // Footsteps while any movement key is held
+    bool anyMoveKey = keys[SDL_SCANCODE_W] || keys[SDL_SCANCODE_S] ||
+                      keys[SDL_SCANCODE_A] || keys[SDL_SCANCODE_D];
+    if (anyMoveKey && onGround == true && footstepTimer <= 0.0f) {
+        audio.playSFX("walk");
+        footstepTimer = 0.30f;
     }
     // Jump
     if (keys[SDL_SCANCODE_SPACE] && onGround) {
@@ -192,7 +203,7 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
     }
 
     // Apply friction if no movement keys
-    if (!keys[SDL_SCANCODE_W] && !keys[SDL_SCANCODE_S]) {
+    if (!anyMoveKey) {
 
         float speed = std::sqrt(velX*velX + velY*velY);
 
@@ -322,11 +333,12 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
         velY = 0;
     }
 
-    // Turning acceleration
-    if (keys[SDL_SCANCODE_A]) {
+    // Turning acceleration (arrow keys are the keyboard fallback; the
+    // mouse is the primary look control via MOUSE_SENS in Player.h)
+    if (keys[SDL_SCANCODE_LEFT]) {
         turnVel -= TURN_ACCEL * delta;
     }
-    else if (keys[SDL_SCANCODE_D]) {
+    else if (keys[SDL_SCANCODE_RIGHT]) {
         turnVel += TURN_ACCEL * delta;
     }
     else {
@@ -345,8 +357,12 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
     if (turnVel >  MAX_TURN_SPEED) turnVel =  MAX_TURN_SPEED;
     if (turnVel < -MAX_TURN_SPEED) turnVel = -MAX_TURN_SPEED;
 
-    // update angle
-    angle += turnVel * delta;
+    // update angle: keyboard turn + mouse yaw. The relative state is
+    // consumed here every frame (dy goes unused until pitch lands) so
+    // no stale motion can accumulate between reads.
+    int mouseDX = 0, mouseDY = 0;
+    SDL_GetRelativeMouseState(&mouseDX, &mouseDY);
+    angle += turnVel * delta + float(mouseDX) * MOUSE_SENS;
 
     // wrap angle
     if (angle < 0) angle += 2*M_PI;

@@ -115,6 +115,19 @@ int main() {
     Uint32 last = SDL_GetTicks();
     float pauseT = 0.0f;
 
+    // Mouse capture: relative mode while playing (hidden cursor, motion
+    // deltas for mouselook), free cursor for menus/pause. Idempotent so
+    // it is safe to call every frame; re-capturing flushes stale deltas
+    // so menu cursor motion can't whip the view around on resume.
+    auto setMouseCapture = [](bool capture) {
+        if ((SDL_GetRelativeMouseMode() == SDL_TRUE) == capture) return;
+        SDL_SetRelativeMouseMode(capture ? SDL_TRUE : SDL_FALSE);
+        if (capture) {
+            int flushX = 0, flushY = 0;
+            SDL_GetRelativeMouseState(&flushX, &flushY);
+        }
+    };
+
     // =========================
     // Main game loop
     // =========================
@@ -132,6 +145,7 @@ int main() {
             studioIntro.start();
 
             while (running && gameState == GameState::StudioIntro) {
+                setMouseCapture(false);
                 Uint32 now = SDL_GetTicks();
                 float dt = (now - last) / 1000.f;
                 last = now;
@@ -160,6 +174,7 @@ int main() {
             audio.playMusic(resolvePath("Assets/audio/FurySyrgeMainTheme.mp3"), true);
 
             while (running && gameState == GameState::MainMenu) {
+                setMouseCapture(false);
                 Uint32 now = SDL_GetTicks();
                 float dt = (now - last) / 1000.f;
                 last = now;
@@ -207,6 +222,7 @@ int main() {
                 // LEVEL END
                 // -------------------------
                 if (gameState == GameState::LevelEnd) {
+                    setMouseCapture(false);
                     if (!levelEnd.startedMusic) {
                         audio.stopMusic();   
                         audio.playMusic(resolvePath("Assets/audio/FurySyrgeLvlComplete.mp3"), false);
@@ -240,6 +256,7 @@ int main() {
                 // ======================
                 if (gameState == GameState::PlayerDead)
                 {
+                    setMouseCapture(false);
                     if (!gameOver.startedMusic) {
                         audio.stopMusic();
                         audio.playMusic(resolvePath("Assets/audio/GameOver.mp3"), false);
@@ -277,6 +294,7 @@ int main() {
                 // PAUSED
                 // ======================
                 else if (gameState == GameState::Paused) {
+                    setMouseCapture(false);
                     pauseT = std::min(pauseT + 0.1f, 1.0f);
 
                     // Render frozen world
@@ -357,6 +375,7 @@ int main() {
                 // ======================
                 else {
                     pauseT = 0.0f;
+                    setMouseCapture(true);
 
                     SDL_Event e;
                     while (SDL_PollEvent(&e)) {

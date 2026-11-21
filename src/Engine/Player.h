@@ -57,7 +57,12 @@ public:
     // top rate) and ramp-down (0.18s to a stop) keep their original feel.
     const float TURN_ACCEL = 14.0f;   // how fast turning speeds up
     const float TURN_FRICTION = 20.0f; // how fast turning slows down
-    const float MAX_TURN_SPEED = 3.5f; // top turning speed
+    const float MAX_TURN_SPEED = 3.5f; // top turning speed (arrow keys)
+
+    // Mouse look: yaw radians per pixel of relative mouse motion.
+    // 0.0025 ~= a full 360 deg turn over ~2500 px of travel; raise it
+    // for a faster mouse, lower it for trackpads.
+    const float MOUSE_SENS = 0.0025f;
 
     const float JUMP_VELOCITY = 3.0f;
     const float GRAVITY = 9.8f;
