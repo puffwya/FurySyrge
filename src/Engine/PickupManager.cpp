@@ -157,8 +157,10 @@ void PickupManager::renderPickups(
         float pickupBottom = p->z - player.z;
         float pickupTop = p->z + pickupHeight - player.z;
 
-        int drawStartY = int(screenH / 2 - pickupTop / transformY * focalY);
-        int drawEndY = int(screenH / 2 - pickupBottom / transformY * focalY);
+        // Horizon carries the pitch shear so pickups line up with floors
+        const float horizon = Projection::horizonY(screenH, player.pitch);
+        int drawStartY = int(horizon - pickupTop / transformY * focalY);
+        int drawEndY = int(horizon - pickupBottom / transformY * focalY);
         int drawStartX = screenX - spriteW / 2;
         int drawEndX = drawStartX + spriteW;
 

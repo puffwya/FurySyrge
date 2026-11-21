@@ -60,11 +60,12 @@ void DoomRenderer::drawBulletHoles(
     BulletHoleManager& bulletHoleManager
 ) {
     // Same anisotropic projection as the wall renderer (see Projection.h):
-    // screen X with focalX, screen Y with focalY.
+    // screen X with focalX, screen Y with focalY. The horizon carries the
+    // pitch shear so holes stay under the crosshair when looking up/down.
     const float focalX = Projection::focalX(screenW);
     const float focalY = Projection::focalY(screenH);
     const float cx = screenW * 0.5f;
-    const float cy = screenH * 0.5f;
+    const float cy = Projection::horizonY(screenH, player.pitch);
 
     for (const BulletHole& hole : bulletHoleManager.getAll()) {
         const int tx = hole.tileX;
@@ -179,7 +180,7 @@ void DoomRenderer::renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, i
     const float ca = std::cos(player.angle);
 
     const float cx = screenW * 0.5f;
-    const float cy = screenH * 0.5f;
+    const float cy = Projection::horizonY(screenH, player.pitch);
     const float EPS = 1e-6f;
 
     // Floor rasterizer's vertical projection distance (see Projection.h) -
@@ -265,7 +266,7 @@ void DoomRenderer::renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, i
         float* zPtr = zBuffer + yTop * screenW + sx;
 
         for (int y = yTop; y <= yBottom; ++y) {
-            float p = float(y - screenH * 0.5f); // row relative to center
+            float p = float(y - cy); // row relative to the horizon (pitch-shifted)
             if (fabs(p) < 1e-6f) { px += screenW; zPtr += screenW; continue; }
 
             float rowDist = eyeHeight * projPlaneDist / p;
@@ -365,11 +366,12 @@ void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int ma
     }
 
     // Original anisotropic projection (see Projection.h): screen X uses
-    // focalX = screenW/2, screen Y uses focalY = screenH.
+    // focalX = screenW/2, screen Y uses focalY = screenH. The horizon
+    // carries the pitch shear (y-shear keeps vertical faces vertical).
     const float focalX = Projection::focalX(screenW);
     const float focalY = Projection::focalY(screenH);
     const float cx = screenW * 0.5f;
-    const float cy = screenH * 0.5f;
+    const float cy = Projection::horizonY(screenH, player.pitch);
 
     float sxA = (a_camX / a_camY) * focalX + cx;
     float sxB = (b_camX / b_camY) * focalX + cx;
@@ -559,8 +561,9 @@ void DoomRenderer::render(uint32_t* pixels, int screenW, int screenH,
         }
     }
 
-    // Fill Ceiling
-    for (int y = 0; y < screenH / 2; ++y)
+    // Fill Ceiling (everything above the pitch-shifted horizon)
+    const float horizon = Projection::horizonY(screenH, player.pitch);
+    for (int y = 0; y < int(horizon); ++y)
     {
         for (int x = 0; x < screenW; ++x)
         {

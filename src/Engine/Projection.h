@@ -42,6 +42,21 @@ inline float floorFocalY(int screenW)
     return (screenW * 0.5f) / std::tan(FOV_DEG * 0.5f * PI / 180.0f);
 }
 
+// Vertical look (mouse pitch, radians, positive = looking up): the screen
+// horizon line. The renderer implements pitch as a Y-SHEAR - the horizon
+// moves instead of the camera rotating - which is how Doom/Build-engine
+// mouselook worked: vertical lines stay vertical and every projection
+// simply swaps screenH/2 for this value.
+//     horizonY = screenH/2 + focalY * tan(pitch)
+// Because the shear is a linear shift, the aim ray through the screen
+// centre has slope exactly tan(pitch): Player::shoot uses the same tan()
+// so hitscan and bullet holes stay under the crosshair. Pitch is clamped
+// (Player::PITCH_LIMIT, ~40 deg) because shear distorts at the extremes.
+inline float horizonY(int screenH, float pitch)
+{
+    return screenH * 0.5f + focalY(screenH) * std::tan(pitch);
+}
+
 } // namespace Projection
 
 #endif // PROJECTION_H

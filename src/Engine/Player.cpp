@@ -357,12 +357,17 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
     if (turnVel >  MAX_TURN_SPEED) turnVel =  MAX_TURN_SPEED;
     if (turnVel < -MAX_TURN_SPEED) turnVel = -MAX_TURN_SPEED;
 
-    // update angle: keyboard turn + mouse yaw. The relative state is
-    // consumed here every frame (dy goes unused until pitch lands) so
-    // no stale motion can accumulate between reads.
+    // update look: keyboard turn + mouse yaw/pitch. The relative state
+    // is consumed exactly once per frame here.
     int mouseDX = 0, mouseDY = 0;
     SDL_GetRelativeMouseState(&mouseDX, &mouseDY);
     angle += turnVel * delta + float(mouseDX) * MOUSE_SENS;
+
+    // mouse up (dy < 0) looks up; shear-clamped pitch, see
+    // Projection::horizonY for why this is a shear and not a rotation
+    pitch -= float(mouseDY) * MOUSE_SENS;
+    if (pitch >  PITCH_LIMIT) pitch =  PITCH_LIMIT;
+    if (pitch < -PITCH_LIMIT) pitch = -PITCH_LIMIT;
 
     // wrap angle
     if (angle < 0) angle += 2*M_PI;
@@ -671,6 +676,29 @@ void Player::shoot(EnemyManager& manager, WeaponManager& weaponManager, Map& map
     float planeX = -dirY * fovScale;
     float planeY =  dirX * fovScale;
 
+    // True 3D aim: the ray climbs/descends with pitch using the same
+    // tan() that shears the horizon (Projection::horizonY), so hits and
+    // holes land exactly on the crosshair. Occlusion marches that ray
+    // and stops it at the first surface it dips under - floor or wall
+    // alike. Enemy vision LOS is deliberately NOT used here: it hardcodes
+    // a floor-level eye and rejects >0.5 of height separation, which
+    // would make shots from the new second floor silently do nothing.
+    const float aimSlope = std::tan(pitch);
+
+    auto shotOccluded = [&](float depth) {
+        constexpr float STEP = 0.1f;
+        int steps = int(depth / STEP);
+        float sx = x, sy = y;
+        for (int i = 1; i <= steps; ++i) {
+            sx += dirX * STEP;
+            sy += dirY * STEP;
+            float rayZ = z + aimSlope * (i * STEP);
+            if (rayZ < map.get(int(sx), int(sy)).height)
+                return true;   // dipped below a floor or wall surface
+        }
+        return false;
+    };
+
     bool enemyHit = false;
 
     // Check for enemy hits
@@ -694,7 +722,12 @@ void Player::shoot(EnemyManager& manager, WeaponManager& weaponManager, Map& map
         float perpDist = std::abs(dy * dirX - dx * dirY);
 
         if (perpDist < hitWidth) {
-            if (!e.hasLineOfSight(*this, map)) continue;
+            // Vertical aim test: the ray's height at the enemy's depth
+            // must pass through its body span (feet e.z .. e.z+e.height)
+            float rayZ = z + aimSlope * transformY;
+            if (rayZ < e.z || rayZ > e.z + e.height) continue;
+
+            if (shotOccluded(transformY)) continue;
 
             // Apply damage
             int damage = 0;
@@ -736,13 +769,23 @@ void Player::shoot(EnemyManager& manager, WeaponManager& weaponManager, Map& map
                     face = GridSegment::Dir::South;  // ray moving north hit south face
             }
 
-            // Spawn bullet hole on that tile if tile.height > player.height
-            if (map.get(wallHit.tileX, wallHit.tileY).height > z) {
+            // Where the aim ray actually meets the face: 3D aim puts the
+            // hole on the crosshair instead of always at eye height.
+            // holeDist is the along-ray distance (dir is unit length),
+            // the same depth drawBulletHoles projects with.
+            float holeDist = std::sqrt((wallHit.hitX - x) * (wallHit.hitX - x) +
+                                       (wallHit.hitY - y) * (wallHit.hitY - y));
+            float holeZ = z + aimSlope * holeDist;
+
+            // Stamp only if the face reaches that height and the impact
+            // is above the ground plane (there is no floor-hole system).
+            if (holeZ > 0.0f &&
+                map.get(wallHit.tileX, wallHit.tileY).height > holeZ) {
                 if (currentItem == ItemType::Pistol || currentItem == ItemType::Mg) {
                     bulletHoleManager.spawn(
                         wallHit.tileX,
                         wallHit.tileY,
-                        z,
+                        holeZ,
                         face,
                         correctedFraction,
                         BulletHoleType::Pistol
@@ -752,7 +795,7 @@ void Player::shoot(EnemyManager& manager, WeaponManager& weaponManager, Map& map
                     bulletHoleManager.spawn(
                         wallHit.tileX,
                         wallHit.tileY,
-                        z,
+                        holeZ,
                         face,
                         correctedFraction,
                         BulletHoleType::Shotgun

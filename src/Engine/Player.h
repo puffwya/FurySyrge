@@ -64,6 +64,13 @@ public:
     // for a faster mouse, lower it for trackpads.
     const float MOUSE_SENS = 0.0025f;
 
+    // Vertical look: pitch in radians, positive = looking up, driven by
+    // mouse Y at the same sensitivity as yaw. Clamped to +/-40 deg - the
+    // renderer shears the horizon (Projection::horizonY) and beyond ~45
+    // deg distant geometry starts to lean visibly.
+    float pitch = 0.0f;
+    const float PITCH_LIMIT = 0.698f;   // ~40 degrees
+
     const float JUMP_VELOCITY = 3.0f;
     const float GRAVITY = 9.8f;
 

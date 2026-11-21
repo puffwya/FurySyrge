@@ -68,8 +68,10 @@ void SpriteRenderer::renderEnemies(
         float enemyBottom = e->z - player.z;
         float enemyTop = e->z + e->height - player.z;
 
-        int drawStartY = int(screenH / 2 - enemyTop / transformY * focalY);
-        int drawEndY = int(screenH / 2 - enemyBottom / transformY * focalY);
+        // Horizon carries the pitch shear so sprites line up with walls
+        const float horizon = Projection::horizonY(screenH, player.pitch);
+        int drawStartY = int(horizon - enemyTop / transformY * focalY);
+        int drawEndY = int(horizon - enemyBottom / transformY * focalY);
         int drawStartX = screenX - spriteW / 2;
         int drawEndX = drawStartX + spriteW;
 
