@@ -373,6 +373,36 @@ public:
                 }
             }
         }
+
+        // Elevated ring: the second floor gets walled in at RING_H.
+        // Row 15 becomes wall tiles except the 4-tile stair doorway
+        // (cols 13-16), then every wall tile (the row-15 line plus the
+        // whole outer border) is raised. By system:
+        //  - player: step limit 0.25 and jump reach ~1.61 from the 0.9
+        //    platform (eye level 1.4) make the ring solid and taller
+        //    than you can see over
+        //  - enemies: sight and movement both key off Wall type + height
+        //  - bullets: raycastWall keys off rawMap, so shots stop at the
+        //    ring and drop holes (level 2's interior had no wall tiles)
+        // Level 2 has no isEscape/isExit tiles of its own (those belong
+        // to level 1 in applyLevel1Overrides, which this never runs for),
+        // so the ring can't block completion; level 2 is a test layout
+        // toggled with the '2' debug key.
+        for (int x = 0; x < SIZE; ++x) {
+            if (x >= 13 && x <= 16) continue; // stair doorway stays open
+            rawMap[15][x] = 1;
+            data[15][x].type = TileType::Wall;
+        }
+
+        const float RING_H = 1.9f;
+        for (int y = 0; y < SIZE; ++y) {
+            for (int x = 0; x < SIZE; ++x) {
+                if (rawMap[y][x] == 1) {
+                    data[y][x].height = RING_H;
+                    data[y][x].cHeight = RING_H + 1.0f;
+                }
+            }
+        }
     }
 
     // -----------------------------
