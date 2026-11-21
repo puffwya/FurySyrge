@@ -436,28 +436,24 @@ void EnemyManager::update(float dt, const Player& player, PickupManager& pickupM
 
         const auto& tile = map.get(px, py);
 
-        if (tile.type == Map::TileType::Wall) {
-            float wallHeight = tile.height;
-            float stepHeight = 0.25f; // enemy step capability
+        if (tile.type == Map::TileType::Wall && tile.height > 0.25f) {
+            // Solid wall, block movement
+            e.x = oldX;
+            e.y = oldY;
 
-            if (wallHeight > stepHeight) {
-                // Solid wall, block movement
-                e.x = oldX;
-                e.y = oldY;
-
-                // Re-roll wander direction if idle
-                if (e.state == EnemyState::Idle) {
-                    e.wanderTimer = 0.0f;
-                }
-            }
-            else {
-                // Walkable wall, step onto it
-                e.z = wallHeight;
+            // Re-roll wander direction if idle
+            if (e.state == EnemyState::Idle) {
+                e.wanderTimer = 0.0f;
             }
         }
         else {
-            // Not a wall, return to ground
-            e.z = 0.0f;
+            // Walkable: rest on this tile's surface. This must track the
+            // tile height for ANY walkable tile - raised Empty floors like
+            // the level-2 platform (and its stairs) used to drop enemies
+            // back to z=0, sinking their sprites into the platform and
+            // breaking both the LOS eye height and the player's vertical
+            // aim test (Player::shoot checks e.z .. e.z + e.height).
+            e.z = tile.height;
         }
 
         // Enemy separation

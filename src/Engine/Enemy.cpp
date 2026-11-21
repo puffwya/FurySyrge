@@ -77,14 +77,20 @@ void Enemy::activate(int tx, int ty, EnemyType t, EnemyManager& manager) {
 bool Enemy::hasLineOfSight(const Player& player, const Map& map) const {
     constexpr float MAX_LOS_DISTANCE = 10.0f;
 
-    float enemyEyeZ  = 0.5f;
+    // Eye follows the enemy's feet (e.z tracks the tile surface, including
+    // raised floors like the level-2 platform), so eyes line up when both
+    // are on the same elevation.
+    float enemyEyeZ  = z + 0.5f;
     float playerEyeZ = player.z;
 
     float heightDiff = playerEyeZ - enemyEyeZ;
 
-    // Too much vertical separation
-    if (std::abs(heightDiff) > 0.5f)
-        return false;
+    // The old blanket |heightDiff| > 0.5 rejection is gone: it assumed a
+    // floor-level eye, so enemies could never see a player on the second
+    // floor (or one who jumped), and an enemy that wandered up couldn't
+    // see them at point-blank range either. Vertical separation is carried
+    // by blockingHeight in the march below instead, which stops sight at
+    // the 1.9 ring and lets it through the open doorway.
 
     float dx = player.x - x;
     float dy = player.y - y;
