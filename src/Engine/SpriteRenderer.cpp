@@ -75,19 +75,24 @@ void SpriteRenderer::renderEnemies(
         int drawStartX = screenX - spriteW / 2;
         int drawEndX = drawStartX + spriteW;
 
-        // Clamp to screen
-        drawStartX = std::max(0, drawStartX);
-        drawEndX = std::min(screenW - 1, drawEndX);
-        drawStartY = std::max(0, drawStartY);
-        drawEndY = std::min(screenH - 1, drawEndY);
+        // Texcoords use the UNCLAMPED span: deriving them from the
+        // screen-clamped range made sprites squash to fit the visible
+        // area as they crossed an edge instead of being cropped.
+        const int originX = drawStartX;
+        const int originY = drawStartY;
+        const int fullW = drawEndX - drawStartX;
+        const int fullH = drawEndY - drawStartY;
 
-        int spanW = drawEndX - drawStartX;
-        int spanH = drawEndY - drawStartY;
-        if (spanW <= 0 || spanH <= 0) continue;
+        // Clamp to screen (loop bounds only; ends are exclusive)
+        drawStartX = std::max(0, drawStartX);
+        drawEndX = std::min(screenW, drawEndX);
+        drawStartY = std::max(0, drawStartY);
+        drawEndY = std::min(screenH, drawEndY);
+        if (drawEndX <= drawStartX || drawEndY <= drawStartY) continue;
 
         auto drawPixel = [&](int x, int y) {
-            int srcX = std::clamp((x - drawStartX) * frameW / spanW, 0, frameW - 1);
-            int srcY = std::clamp((y - drawStartY) * frameH / spanH, 0, frameH - 1);
+            int srcX = std::clamp((x - originX) * frameW / fullW, 0, frameW - 1);
+            int srcY = std::clamp((y - originY) * frameH / fullH, 0, frameH - 1);
             uint32_t color = framePixels[srcY * frameW + srcX];
             if ((color >> 24) == 0) return; // skip transparent
             pixels[y * screenW + x] = color;

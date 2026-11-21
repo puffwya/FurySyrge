@@ -376,8 +376,10 @@ void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int ma
     float sxA = (a_camX / a_camY) * focalX + cx;
     float sxB = (b_camX / b_camY) * focalX + cx;
 
-    // Skip if entirely off-screen horizontally
-    if ((sxA < -screenW && sxB < -screenW) || (sxA > 2*screenW && sxB > 2*screenW)) return;
+    // Skip when the projected span misses the screen entirely. (The old
+    // asymmetric windows let faces that were fully off-screen - but within
+    // a screen width - paint a 1px sliver at the edge from the clamped t.)
+    if (std::max(sxA, sxB) < 0.0f || std::min(sxA, sxB) > float(screenW - 1)) return;
 
     int x0 = std::clamp(int(std::floor(std::min(sxA, sxB))), 0, screenW - 1);
     int x1 = std::clamp(int(std::ceil (std::max(sxA, sxB))), 0, screenW - 1);
@@ -417,12 +419,16 @@ void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int ma
         else
             u = t; // segment parallel to the image plane: screen X is linear in world X
 
-        // Draw textured column with per-pixel depth test
+        // Draw textured column with per-pixel depth test. V maps along the
+        // TRUE projected span (colCeilY..colFloorY), not the screen-clamped
+        // rows: anchoring it to the clamped start made the texture compress
+        // to fit the visible band whenever a face was cut off by the top or
+        // bottom screen edge, warping the rows near the edge.
         uint32_t* px = pixels + drawStart * screenW + sx;
         float* zPtr = zBuffer + drawStart * screenW + sx;
-        int columnHeight = drawEnd - drawStart + 1;
+        const float spanY = colFloorY - colCeilY;
         for (int y = drawStart; y <= drawEnd; ++y) {
-            float ty = float(y - drawStart) / float(columnHeight + 1e-6f);
+            float ty = (float(y) - colCeilY) / (spanY + 1e-6f);
 
             int texX = int(u * wallTex.w) % wallTex.w; // horizontal
             int texY = int((floorZ + ty * (ceilZ - floorZ)) * wallTex.h) % wallTex.h; // vertical

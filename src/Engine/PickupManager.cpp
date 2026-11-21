@@ -164,20 +164,25 @@ void PickupManager::renderPickups(
         int drawStartX = screenX - spriteW / 2;
         int drawEndX = drawStartX + spriteW;
 
-        // Clamp to screen
-        drawStartX = std::max(0, drawStartX);
-        drawEndX = std::min(screenW - 1, drawEndX);
-        drawStartY = std::max(0, drawStartY);
-        drawEndY = std::min(screenH - 1, drawEndY);
+        // Texcoords use the UNCLAMPED span: deriving them from the
+        // screen-clamped range made pickups squash to fit the visible
+        // area as they crossed an edge instead of being cropped.
+        const int originX = drawStartX;
+        const int originY = drawStartY;
+        const int fullW = drawEndX - drawStartX;
+        const int fullH = drawEndY - drawStartY;
 
-        int spanW = drawEndX - drawStartX;
-        int spanH = drawEndY - drawStartY;
-        if (spanW <= 0 || spanH <= 0) continue;
+        // Clamp to screen (loop bounds only; ends are exclusive)
+        drawStartX = std::max(0, drawStartX);
+        drawEndX = std::min(screenW, drawEndX);
+        drawStartY = std::max(0, drawStartY);
+        drawEndY = std::min(screenH, drawEndY);
+        if (drawEndX <= drawStartX || drawEndY <= drawStartY) continue;
 
         // Draw pixel lambda
         auto drawPixel = [&](int x, int y) {
-            int srcX = std::clamp((x - drawStartX) * v.w / spanW, 0, v.w - 1);
-            int srcY = std::clamp((y - drawStartY) * v.h / spanH, 0, v.h - 1);
+            int srcX = std::clamp((x - originX) * v.w / fullW, 0, v.w - 1);
+            int srcY = std::clamp((y - originY) * v.h / fullH, 0, v.h - 1);
             uint32_t color = v.pixels[srcY * v.w + srcX];
             if ((color >> 24) == 0) return; // skip transparent
             pixels[y * screenW + x] = color;
