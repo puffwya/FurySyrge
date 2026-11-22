@@ -157,10 +157,13 @@ void PickupManager::renderPickups(
         float pickupBottom = p->z - player.z;
         float pickupTop = p->z + pickupHeight - player.z;
 
-        // Horizon carries the pitch shear so pickups line up with floors
+        // Pitch-aware vertical projection (Projection::projectY) - the same
+        // mapping the walls use, so pickups line up with the floors they
+        // sit on.
         const float horizon = Projection::horizonY(screenH, player.pitch);
-        int drawStartY = int(horizon - pickupTop / transformY * focalY);
-        int drawEndY = int(horizon - pickupBottom / transformY * focalY);
+        const float T = std::tan(player.pitch);
+        int drawStartY = int(Projection::projectY(pickupTop / transformY, T, horizon, focalY));
+        int drawEndY = int(Projection::projectY(pickupBottom / transformY, T, horizon, focalY));
         int drawStartX = screenX - spriteW / 2;
         int drawEndX = drawStartX + spriteW;
 
@@ -168,9 +171,7 @@ void PickupManager::renderPickups(
         // screen-clamped range made pickups squash to fit the visible
         // area as they crossed an edge instead of being cropped.
         const int originX = drawStartX;
-        const int originY = drawStartY;
         const int fullW = drawEndX - drawStartX;
-        const int fullH = drawEndY - drawStartY;
 
         // Clamp to screen (loop bounds only; ends are exclusive)
         drawStartX = std::max(0, drawStartX);
@@ -182,7 +183,10 @@ void PickupManager::renderPickups(
         // Draw pixel lambda
         auto drawPixel = [&](int x, int y) {
             int srcX = std::clamp((x - originX) * v.w / fullW, 0, v.w - 1);
-            int srcY = std::clamp((y - originY) * v.h / fullH, 0, v.h - 1);
+            // Vertical texcoord from the row's world height (hyperbolic with
+            // pitch, exactly linear at pitch 0).
+            const float rowZ = Projection::unprojectY(float(y), T, horizon, focalY) * transformY;
+            int srcY = std::clamp(int((pickupTop - rowZ) / pickupHeight * v.h), 0, v.h - 1);
             uint32_t color = v.pixels[srcY * v.w + srcX];
             if ((color >> 24) == 0) return; // skip transparent
             pixels[y * screenW + x] = color;

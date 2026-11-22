@@ -65,9 +65,10 @@ public:
     const float MOUSE_SENS = 0.0025f;
 
     // Vertical look: pitch in radians, positive = looking up, driven by
-    // mouse Y at the same sensitivity as yaw. Clamped to +/-40 deg - the
-    // renderer shears the horizon (Projection::horizonY) and beyond ~45
-    // deg distant geometry starts to lean visibly.
+    // mouse Y at the same sensitivity as yaw. Clamped to +/-40 deg: the
+    // vertical mapping matches a true rotation (Projection::projectY) but
+    // the horizontal half still uses unrotated depth, so beyond ~45 deg
+    // the mismatch between the two becomes visible.
     float pitch = 0.0f;
     const float PITCH_LIMIT = 0.698f;   // ~40 degrees
 

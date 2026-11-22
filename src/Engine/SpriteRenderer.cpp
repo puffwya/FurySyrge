@@ -68,10 +68,12 @@ void SpriteRenderer::renderEnemies(
         float enemyBottom = e->z - player.z;
         float enemyTop = e->z + e->height - player.z;
 
-        // Horizon carries the pitch shear so sprites line up with walls
+        // Pitch-aware vertical projection (Projection::projectY) - the same
+        // mapping the walls use, so sprites line up with them.
         const float horizon = Projection::horizonY(screenH, player.pitch);
-        int drawStartY = int(horizon - enemyTop / transformY * focalY);
-        int drawEndY = int(horizon - enemyBottom / transformY * focalY);
+        const float T = std::tan(player.pitch);
+        int drawStartY = int(Projection::projectY(enemyTop / transformY, T, horizon, focalY));
+        int drawEndY = int(Projection::projectY(enemyBottom / transformY, T, horizon, focalY));
         int drawStartX = screenX - spriteW / 2;
         int drawEndX = drawStartX + spriteW;
 
@@ -79,9 +81,7 @@ void SpriteRenderer::renderEnemies(
         // screen-clamped range made sprites squash to fit the visible
         // area as they crossed an edge instead of being cropped.
         const int originX = drawStartX;
-        const int originY = drawStartY;
         const int fullW = drawEndX - drawStartX;
-        const int fullH = drawEndY - drawStartY;
 
         // Clamp to screen (loop bounds only; ends are exclusive)
         drawStartX = std::max(0, drawStartX);
@@ -92,7 +92,11 @@ void SpriteRenderer::renderEnemies(
 
         auto drawPixel = [&](int x, int y) {
             int srcX = std::clamp((x - originX) * frameW / fullW, 0, frameW - 1);
-            int srcY = std::clamp((y - originY) * frameH / fullH, 0, frameH - 1);
+            // Vertical texcoord from the row's world height (hyperbolic with
+            // pitch, exactly linear at pitch 0): a linear-in-screen-Y mapping
+            // would warp the sprite as it crosses the top/bottom edge.
+            const float rowZ = Projection::unprojectY(float(y), T, horizon, focalY) * transformY;
+            int srcY = std::clamp(int((enemyTop - rowZ) / e->height * frameH), 0, frameH - 1);
             uint32_t color = framePixels[srcY * frameW + srcX];
             if ((color >> 24) == 0) return; // skip transparent
             pixels[y * screenW + x] = color;
