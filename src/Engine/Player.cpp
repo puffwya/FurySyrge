@@ -363,8 +363,8 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
     SDL_GetRelativeMouseState(&mouseDX, &mouseDY);
     angle += turnVel * delta + float(mouseDX) * MOUSE_SENS;
 
-    // mouse up (dy < 0) looks up; shear-clamped pitch, see
-    // Projection::horizonY for why this is a shear and not a rotation
+    // mouse up (dy < 0) looks up; pitch is clamped - see
+    // Projection::projectY for how it maps onto the screen
     pitch -= float(mouseDY) * MOUSE_SENS;
     if (pitch >  PITCH_LIMIT) pitch =  PITCH_LIMIT;
     if (pitch < -PITCH_LIMIT) pitch = -PITCH_LIMIT;
@@ -677,8 +677,10 @@ void Player::shoot(EnemyManager& manager, WeaponManager& weaponManager, Map& map
     float planeY =  dirX * fovScale;
 
     // True 3D aim: the ray climbs/descends with pitch using the same
-    // tan() that shears the horizon (Projection::horizonY), so hits and
-    // holes land exactly on the crosshair. Occlusion marches that ray
+    // tan() that anchors the horizon (Projection::horizonY) - under
+    // Projection::projectY the screen centre still maps to slope
+    // tan(pitch) - so hits and holes land exactly on the crosshair.
+    // Occlusion marches that ray
     // and stops it at the first surface it dips under - floor or wall
     // alike. Enemy vision LOS is deliberately NOT used here: it hardcodes
     // a floor-level eye and rejects >0.5 of height separation, which

@@ -60,12 +60,14 @@ void DoomRenderer::drawBulletHoles(
     BulletHoleManager& bulletHoleManager
 ) {
     // Same anisotropic projection as the wall renderer (see Projection.h):
-    // screen X with focalX, screen Y with focalY. The horizon carries the
-    // pitch shear so holes stay under the crosshair when looking up/down.
+    // screen X with focalX, screen Y with focalY. The vertical mapping is
+    // the pitch-aware Möbius remap, so holes stay under the crosshair when
+    // looking up/down.
     const float focalX = Projection::focalX(screenW);
     const float focalY = Projection::focalY(screenH);
     const float cx = screenW * 0.5f;
     const float cy = Projection::horizonY(screenH, player.pitch);
+    const float T = std::tan(player.pitch);
 
     for (const BulletHole& hole : bulletHoleManager.getAll()) {
         const int tx = hole.tileX;
@@ -105,15 +107,15 @@ void DoomRenderer::drawBulletHoles(
         if (px < 0 || px >= screenW) continue;
 
         // Vertical span of the face at this depth (same rounding as the wall)
-        const float faceCeilY   = cy - (ceilZ  - player.z) * focalY / camY;
-        const float faceFloorY  = cy - (floorZ - player.z) * focalY / camY;
+        const float faceCeilY   = Projection::projectY((ceilZ  - player.z) / camY, T, cy, focalY);
+        const float faceFloorY  = Projection::projectY((floorZ - player.z) / camY, T, cy, focalY);
         const int   faceTopRow    = std::max(0, int(std::ceil(std::min(faceCeilY, faceFloorY))));
         const int   faceBottomRow = std::min(screenH - 1, int(std::floor(std::max(faceCeilY, faceFloorY))));
         if (faceBottomRow < faceTopRow) continue;
 
         // Impact at eye height projects onto the horizon; holeZ carries the
         // shooter's eye height, so this is the real projection of that point.
-        const int midY = int(cy - (hole.holeZ - player.z) * focalY / camY) + hole.verticalOffset;
+        const int midY = int(Projection::projectY((hole.holeZ - player.z) / camY, T, cy, focalY)) + hole.verticalOffset;
 
         const auto& visual = bulletHoleManager.getVisual(hole.type);
         const int texW = visual.w;
@@ -181,6 +183,7 @@ void DoomRenderer::renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, i
 
     const float cx = screenW * 0.5f;
     const float cy = Projection::horizonY(screenH, player.pitch);
+    const float T = std::tan(player.pitch);
     const float EPS = 1e-6f;
 
     // Floor rasterizer's vertical projection distance (see Projection.h) -
@@ -250,8 +253,8 @@ void DoomRenderer::renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, i
         // Project vertical position
         float eyeHeight = player.z - tileHeight;
 
-        float screenY_enter = cy - ((tileHeight - player.z) * projPlaneDist / t_enter);
-        float screenY_exit  = cy - ((tileHeight - player.z) * projPlaneDist / tmax);
+        float screenY_enter = Projection::projectY((tileHeight - player.z) / t_enter, T, cy, projPlaneDist);
+        float screenY_exit  = Projection::projectY((tileHeight - player.z) / tmax,   T, cy, projPlaneDist);
 
         int yTop = std::max(0, int(std::ceil(std::min(screenY_enter, screenY_exit))));
         int yBottom = std::min(screenH - 1, int(std::floor(std::max(screenY_enter, screenY_exit))));
@@ -266,10 +269,14 @@ void DoomRenderer::renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, i
         float* zPtr = zBuffer + yTop * screenW + sx;
 
         for (int y = yTop; y <= yBottom; ++y) {
-            float p = float(y - cy); // row relative to the horizon (pitch-shifted)
-            if (fabs(p) < 1e-6f) { px += screenW; zPtr += screenW; continue; }
+            // Row -> world vertical slope -> horizontal distance. With pitch
+            // that inverse is hyperbolic (Projection::unprojectY), which is
+            // what keeps the floor's perspective correct while looking
+            // up/down; at pitch 0 it reduces exactly to eyeHeight*f/p.
+            const float uRow = Projection::unprojectY(float(y), T, cy, projPlaneDist);
+            if (uRow >= -1e-6f) { px += screenW; zPtr += screenW; continue; } // at or above eye level
 
-            float rowDist = eyeHeight * projPlaneDist / p;
+            float rowDist = eyeHeight / -uRow;
             if (rowDist <= 0.0f) { px += screenW; zPtr += screenW; continue; } // behind camera
 
             // Depth test: skip if wall or closer floor already here
@@ -366,12 +373,15 @@ void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int ma
     }
 
     // Original anisotropic projection (see Projection.h): screen X uses
-    // focalX = screenW/2, screen Y uses focalY = screenH. The horizon
-    // carries the pitch shear (y-shear keeps vertical faces vertical).
+    // focalX = screenW/2, screen Y uses focalY = screenH. The vertical half
+    // is the pitch-aware Möbius remap, which keeps vertical faces vertical
+    // (screen X still uses the unrotated depth) while giving them real
+    // perspective foreshortening.
     const float focalX = Projection::focalX(screenW);
     const float focalY = Projection::focalY(screenH);
     const float cx = screenW * 0.5f;
     const float cy = Projection::horizonY(screenH, player.pitch);
+    const float T = std::tan(player.pitch);
 
     float sxA = (a_camX / a_camY) * focalX + cx;
     float sxB = (b_camX / b_camY) * focalX + cx;
@@ -385,15 +395,18 @@ void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int ma
     int x1 = std::clamp(int(std::ceil (std::max(sxA, sxB))), 0, screenW - 1);
     if (x1 < x0) std::swap(x0, x1);
 
-    // Project top/bottom for endpoints (vertical focal length)
-    float a_sy_floor   = cy - (floorZ - player.z) * (focalY / a_camY);
-    float a_sy_ceiling = cy - (ceilZ  - player.z) * (focalY / a_camY);
-    float b_sy_floor   = cy - (floorZ - player.z) * (focalY / b_camY);
-    float b_sy_ceiling = cy - (ceilZ  - player.z) * (focalY / b_camY);
-
     // 1/depth is linear in screen X along a world-space line, depth itself is not.
     const float invA = 1.0f / a_camY;
     const float invB = 1.0f / b_camY;
+
+    // Project top/bottom for endpoints (vertical focal length). A face that
+    // dips behind the pitched image plane projects to a huge off-screen Y on
+    // the correct side, so its span runs off the screen edge instead of
+    // wrapping to the opposite one.
+    float a_sy_floor   = Projection::projectY((floorZ - player.z) * invA, T, cy, focalY);
+    float a_sy_ceiling = Projection::projectY((ceilZ  - player.z) * invA, T, cy, focalY);
+    float b_sy_floor   = Projection::projectY((floorZ - player.z) * invB, T, cy, focalY);
+    float b_sy_ceiling = Projection::projectY((ceilZ  - player.z) * invB, T, cy, focalY);
 
     for (int sx = x0; sx <= x1; ++sx) {
         float t = (fabs(sxB - sxA) > 1e-6f) ? (sx - sxA) / (sxB - sxA) : 0.0f;
@@ -419,16 +432,20 @@ void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int ma
         else
             u = t; // segment parallel to the image plane: screen X is linear in world X
 
-        // Draw textured column with per-pixel depth test. V maps along the
-        // TRUE projected span (colCeilY..colFloorY), not the screen-clamped
-        // rows: anchoring it to the clamped start made the texture compress
-        // to fit the visible band whenever a face was cut off by the top or
-        // bottom screen edge, warping the rows near the edge.
+        // Draw textured column with per-pixel depth test. V comes from the
+        // WORLD height of the row (invert the pitch projection per row), not
+        // from the screen span: with pitch that span is hyperbolic, so a
+        // linear-in-screen-Y V would stretch the bricks near the top and
+        // bottom of the face. At pitch 0 the two forms are identical.
+        // (Anchoring V to the screen-CLAMPED rows instead of the true span
+        // was a separate bug: it compressed the texture whenever a face was
+        // cut off by a screen edge.)
         uint32_t* px = pixels + drawStart * screenW + sx;
         float* zPtr = zBuffer + drawStart * screenW + sx;
-        const float spanY = colFloorY - colCeilY;
         for (int y = drawStart; y <= drawEnd; ++y) {
-            float ty = (float(y) - colCeilY) / (spanY + 1e-6f);
+            const float uRow = Projection::unprojectY(float(y), T, cy, focalY);
+            const float rowZ = player.z + uRow * depth;            // world Z of this row
+            const float ty = (ceilZ - rowZ) / (ceilZ - floorZ);    // 0 at the face top
 
             int texX = int(u * wallTex.w) % wallTex.w; // horizontal
             int texY = int((floorZ + ty * (ceilZ - floorZ)) * wallTex.h) % wallTex.h; // vertical
