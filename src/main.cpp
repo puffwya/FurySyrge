@@ -269,10 +269,20 @@ int main(int argc, char** argv) {
                     levelEnd.update(dt, gameState, audio);
 
                     if (gameState == GameState::MainMenu && session) {
-                        session.reset();
-                        levelEnd.startedMusic = false;
-                        levelEnd.resetAnimation();
-                        break;
+                        if (session->advanceLevel()) {
+                            // Campaign continues: resume play on the next level.
+                            levelEnd.startedMusic = false;
+                            levelEnd.resetAnimation();
+                            audio.stopMusic();
+                            audio.playMusic(
+                                resolvePath("Assets/audio/FurySyrgeLVL1Theme.mp3"), true);
+                            gameState = GameState::Playing;
+                        } else {
+                            session.reset();
+                            levelEnd.startedMusic = false;
+                            levelEnd.resetAnimation();
+                            break;
+                        }
                     }
 
                     levelEnd.render(renderer.getSDLRenderer(), session->player, session->enemyManager);

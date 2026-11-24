@@ -30,6 +30,10 @@ DifficultyParams getDifficultyParams(Difficulty d)
 }
 
 GameSession::GameSession(Renderer& renderer, int screenW, int screenH, Difficulty diff) : difficulty(diff) {
+    // Pickup visuals first: initWorld() -> loadLevel() spawns the level's
+    // initial pickups, which look up their textures immediately.
+    pickupManager.loadPickupAssets();
+
     initWorld(renderer, screenW);
 
     zBuffer = new float[screenW * screenH];
@@ -48,11 +52,52 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH, Difficult
         std::cerr << "Failed to initialize HUD\n";
     }
 
-    // Waves come from the level definition; difficulty scales them below.
-    waves = getLevel(0).waves;
+    // Initialize enemy assets
+    enemyManager.loadEnemyAssets();
 
+    doomRenderer->setPickupManager(pickupManager);
+}
+
+GameSession::~GameSession() {
+    delete[] zBuffer;
+}
+
+void GameSession::initWorld(Renderer& renderer, int screenW, int levelIndex) {
+    (void)renderer;
+    loadLevel(levelIndex);
+}
+
+void GameSession::loadLevel(int levelIndex) {
+    currentLevel = levelIndex;
+    const LevelDef& def = getLevel(levelIndex);
+
+    worldMap.loadLevel(levelIndex);
+    enemyManager.scanMapForSpawnPoints(worldMap);
+
+    segments = buildSegmentsFromGrid(worldMap);
+    bspRoot = buildBSP(segments);
+    doomRenderer = std::make_unique<DoomRenderer>(segments, std::move(bspRoot));
+
+    // Start the player at the level's authored spawn, standing on its
+    // floor (eye height 0.5 above it).
+    player.x = def.playerSpawnX;
+    player.y = def.playerSpawnY;
+    player.z = worldMap.get(int(def.playerSpawnX), int(def.playerSpawnY)).height + 0.5f;
+    player.velX = player.velY = player.velZ = 0.0f;
+    player.angle = def.playerSpawnAngle;
+
+    // Fresh level: drop the previous level's runtime state and lay out
+    // this level's starting pickups.
+    exit_spawn = false;
+    pickupManager.clear();
+    for (const PickupSpawn& p : def.initialPickups)
+        pickupManager.addPickup(p.x, p.y, p.type, p.id, worldMap);
+    enemyManager.deactivateAll();
+    wallAnims.clear();
+
+    // This level's waves, scaled by difficulty.
+    waves = def.waves;
     DifficultyParams params = getDifficultyParams(difficulty);
-
     for (auto& wave : waves)
     {
         // Scale spawn rate
@@ -81,49 +126,18 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH, Difficult
         }
     }
 
-    // Initialize enemy assets
-    enemyManager.loadEnemyAssets();
-
-    // Init pickup assets
-    pickupManager.loadPickupAssets();
-
-    for (const PickupSpawn& p : getLevel(0).initialPickups)
-        pickupManager.addPickup(p.x, p.y, p.type, p.id, worldMap);
-
-    doomRenderer->setPickupManager(pickupManager);
-
-    // Start in post-wave delay so wave 1 begins after 5s
+    // Restart the wave cycle: 5s of post-wave delay, then wave 1.
+    currentWaveIndex = -1;
     waveState = WaveState::PostWaveDelay;
     postWaveTimer = 0.0f;
+    enemiesSpawned = 0;
+    spawnTimer = 0.0f;
 }
 
-GameSession::~GameSession() {
-    delete[] zBuffer;
-}
-
-void GameSession::initWorld(Renderer& renderer, int screenW, int levelIndex) {
-    (void)renderer;
-    loadLevel(levelIndex);
-}
-
-void GameSession::loadLevel(int levelIndex) {
-    currentLevel = levelIndex;
-    worldMap.loadLevel(levelIndex);
-    enemyManager.scanMapForSpawnPoints(worldMap);
-
-    segments = buildSegmentsFromGrid(worldMap);
-    bspRoot = buildBSP(segments);
-    doomRenderer = std::make_unique<DoomRenderer>(segments, std::move(bspRoot));
-
-    // Start the player at the level's authored spawn, standing on its
-    // floor (eye height 0.5 above it), and re-arm the spawn-room trigger.
-    const LevelDef& def = getLevel(levelIndex);
-    player.x = def.playerSpawnX;
-    player.y = def.playerSpawnY;
-    player.z = worldMap.get(int(def.playerSpawnX), int(def.playerSpawnY)).height + 0.5f;
-    player.velX = player.velY = player.velZ = 0.0f;
-    player.angle = def.playerSpawnAngle;
-    exit_spawn = false;
+bool GameSession::advanceLevel() {
+    if (currentLevel + 1 >= levelCount()) return false;
+    loadLevel(currentLevel + 1);
+    return true;
 }
 
 void GameSession::startWave(int index) {
@@ -210,13 +224,6 @@ void GameSession::updateWallAnimations(float dt, AudioManager& audio) {
 }
 
 void GameSession::update(float dt, const Uint8* keys, GameState& gameState, AudioManager& audio) {
-    // Temporary: press '2' to switch levels (loadLevel re-spawns the player)
-    static bool prevKey2 = false;
-    if (keys[SDL_SCANCODE_2] && !prevKey2) {
-        loadLevel(currentLevel == 0 ? 1 : 0);
-    }
-    prevKey2 = keys[SDL_SCANCODE_2];
-
     player.update(dt, keys, worldMap, enemyManager, weaponManager, weapon, gameState, audio, bulletHoleManager);
     enemyManager.update(dt, player, pickupManager, worldMap, audio);
     pickupManager.update(player, dt, weapon, audio);

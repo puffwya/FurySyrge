@@ -15,6 +15,7 @@ EnemyManager::EnemyManager() {
 
 void EnemyManager::scanMapForSpawnPoints(const Map& map) {
     spawnPoints.clear();
+    nextSpawnIndex = 0;
     for (int x = 0; x < map.SIZE; x++) {
         for (int y = 0; y < map.SIZE; y++) {
             if (map.get(x,y).type == Map::TileType::Spawn) {

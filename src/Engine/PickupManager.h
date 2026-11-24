@@ -47,6 +47,9 @@ public:
     // (x, y), whatever height that tile happens to be.
     void addPickup(float x, float y, PickupType type, WeaponType id, const Map& map);
 
+    // Remove every pickup (level transitions).
+    void clear() { pickups.clear(); }
+
     // Render pickups in world space
     void renderPickups(uint32_t* pixels, int screenW, int screenH,
                        const Player& player, float* zBuffer, Map& map);

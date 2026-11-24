@@ -67,6 +67,9 @@ public:
     Difficulty difficulty;
     int currentLevel = 0;
 
+    // LevelEnd screen -> next level; false when the campaign is finished.
+    bool advanceLevel();
+
 private:
     // Core gameplay state
     Map worldMap;

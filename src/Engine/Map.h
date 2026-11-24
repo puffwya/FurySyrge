@@ -113,6 +113,10 @@ public:
                     case 'x':
                         c.isEscape = true;
                         break;
+                    case 'X':
+                        c.isEscape = true;
+                        c.height = 0.9f;  // escape on the raised second floor
+                        break;
                     case '1': c.height = 0.25f; break;
                     case '2': c.height = 0.5f;  break;
                     case '3': c.height = 0.75f; break;

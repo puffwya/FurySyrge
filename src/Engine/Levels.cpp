@@ -9,7 +9,8 @@
 //   #  wall at wallHeight       S  sliding wall (opens when its wave starts)
 //   E  exit door wall           W  crate block   (wall, h=0.5)
 //   C  low cover (wall, h=0.25) ~  lava rim      (wall, h=-0.25, burns)
-//   .  floor h=0                x  escape tile (step off => level complete)
+//   .  floor h=0                x/X escape tile, flat / raised floor
+//                               (step off => level complete)
 //   s  enemy spawn point        1/2/3  step h=0.25/0.5/0.75 (walkable floor)
 //   4  raised floor h=0.9       !  lava pit     (floor, h=-0.5, burns)
 //
@@ -109,11 +110,11 @@ static const LevelDef LEVELS[] = {
             { 5.5f, 2.5f, PickupType::Weapon, WeaponType::Pistol },
         },
     },
-    {  // ---- Level 2: vertical arena -- central stairs, raised second floor, ring walls ----
+    {  // ---- Level 2: vertical arena -- central stairs, raised second floor, south exit ----
         {  // ASCII grid
             "##############################",  // y=00
             "#............................#",  // y=01
-            "#............................#",  // y=02
+            "#.s.......................s..#",  // y=02
             "#............................#",  // y=03
             "#............................#",  // y=04
             "#....s.......................#",  // y=05
@@ -123,7 +124,7 @@ static const LevelDef LEVELS[] = {
             "#............................#",  // y=09
             "#............................#",  // y=10
             "#............................#",  // y=11
-            "#............................#",  // y=12
+            "#.s.......................s..#",  // y=12
             "#............1111............#",  // y=13
             "#............2222............#",  // y=14
             "#############3333#############",  // y=15
@@ -138,15 +139,36 @@ static const LevelDef LEVELS[] = {
             "#4444444444444444444444444444#",  // y=24
             "#4444444444444444444444444444#",  // y=25
             "#4444444441444444444144444444#",  // y=26
-            "#4444444444444444444444444444#",  // y=27
-            "##############################",  // y=28
+            "#4444444444444XX4444444444444#",  // y=27
+            "##############EE##############",  // y=28
             "..............................",  // y=29
         },
         1.9f, 2.9f,  // wallHeight, wallCH
         5.5f, 5.5f, 0.0f, -1.0f,  // playerSpawnX/Y, angle, spawnExitY
-        {},  // waves (given level-2 waves with the next-level flow)
-        {},  // finalWalls
-        {},  // initialPickups
+        {  // waves (spawnPoints left empty = all "s" tiles)
+        {  // wave 1: probing rush across the main floor
+            4.5f,
+            { EnemyType::Base, EnemyType::Base, EnemyType::Base,
+              EnemyType::Fast },
+            {}, {}, {}
+        },
+        {  // wave 2: shooters join
+            4.0f,
+            { EnemyType::Fast, EnemyType::Base, EnemyType::Shooter,
+              EnemyType::Shooter, EnemyType::Fast, EnemyType::Base },
+            {}, {}, {}
+        },
+        {  // wave 3: tank finale
+            4.5f,
+            { EnemyType::Tank, EnemyType::Tank, EnemyType::Shooter },
+            {}, {}, {}
+        },
+        },
+        {},  // finalWalls: no sliding doors on this level
+        {  // initialPickups
+            { 14.5f, 10.5f, PickupType::Health, WeaponType::None },
+            { 2.5f, 13.5f, PickupType::Armor,  WeaponType::None },
+        },
     },
 };
 
