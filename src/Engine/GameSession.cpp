@@ -48,53 +48,8 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH, Difficult
         std::cerr << "Failed to initialize HUD\n";
     }
 
-    // Wave defs (temp)
-
-    // Wave 1
-    waves.push_back({
-        6.0f, // spawn interval
-        {
-            EnemyType::Base, EnemyType::Base, EnemyType::Base, EnemyType::Fast,
-            EnemyType::Base, EnemyType::Fast
-        }
-    });
-
-    // Wave 2
-    waves.push_back({
-        5.0f, // spawn interval
-        {
-            EnemyType::Base, EnemyType::Fast, EnemyType::Base, EnemyType::Fast, 
-            EnemyType::Base, EnemyType::Shooter, EnemyType::Base, EnemyType::Shooter,
-        }
-    });
-
-    // Wave 3
-    waves.push_back({
-        5.0f, // spawn interval
-        {
-            EnemyType::Base, EnemyType::Shooter, EnemyType::Fast, EnemyType::Fast, 
-            EnemyType::Shooter, EnemyType::Base, EnemyType::Shooter, EnemyType::Base, 
-            EnemyType::Base, EnemyType::Fast
-        }
-    });  
-
-    // Wave 4
-    waves.push_back({
-        5.0f, // spawn interval
-        {
-            EnemyType::Fast, EnemyType::Shooter, EnemyType::Base, EnemyType::Shooter,
-            EnemyType::Shooter, EnemyType::Base, EnemyType::Shooter, EnemyType::Base,
-            EnemyType::Shooter, EnemyType::Fast, EnemyType::Shooter, EnemyType::Fast
-        }
-    });
-
-    // Wave 5
-    waves.push_back({
-        5.0f, // spawn interval
-        {
-            EnemyType::Tank, EnemyType::Tank, EnemyType::Tank
-        }
-    });
+    // Waves come from the level definition; difficulty scales them below.
+    waves = getLevel(0).waves;
 
     DifficultyParams params = getDifficultyParams(difficulty);
 
@@ -132,9 +87,8 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH, Difficult
     // Init pickup assets
     pickupManager.loadPickupAssets();
 
-    pickupManager.addPickup(23.5f, 2.5f, 0.0f, PickupType::Health, WeaponType::None);
-
-    pickupManager.addPickup(5.5f, 2.5f, 0.0f, PickupType::Weapon, WeaponType::Pistol);
+    for (const PickupSpawn& p : getLevel(0).initialPickups)
+        pickupManager.addPickup(p.x, p.y, 0.0f, p.type, p.id);
 
     doomRenderer->setPickupManager(pickupManager);
 
@@ -170,192 +124,49 @@ void GameSession::startWave(int index) {
 }
 
 void GameSession::startWaveWallAnimations(int waveIndex, AudioManager& audio) {
-    audio.playSFX("wall_slide");
-    // Wave 0 (wave one)
-    if (waveIndex == 0) {
+    const LevelDef& levelDef = getLevel(worldMap.currentLevel);
 
-        // Tiles to animate
-        const std::vector<std::pair<int,int>> tiles = {
-            {14, 4},
-            {14, 5},
-            {15, 4},
-            {15, 5}
-        };
+    // One sliding-wall animation: open = slide down to floor level,
+    // close = slide back up to the level's wall height.
+    auto slideWall = [&](int x, int y, float targetHeight) {
+        WallHeightAnim anim;
+        anim.x = x;
+        anim.y = y;
+        anim.startHeight = worldMap.get(x, y).height;
+        anim.targetHeight = targetHeight;
+        anim.progress = 0.0f;
+        anim.speed = 0.75f;
+        anim.finished = false;
+        wallAnims.push_back(anim);
+    };
 
-        for (auto& [x, y] : tiles) {
-            auto& tile = worldMap.get(x, y);
-
-            WallHeightAnim anim;
-            anim.x = x;
-            anim.y = y;
-            anim.startHeight = tile.height;   // should be 1.0f
-            anim.targetHeight = 0.0f;         // slide down
-            anim.progress = 0.0f;
-            anim.speed = 0.75f;
-            anim.finished = false;
-
-            wallAnims.push_back(anim);
-        }
+    // Special index 100: the player left the spawn room, so raise the
+    // start-room doors again (they are wave 1's openWalls).
+    if (waveIndex == 100) {
+        audio.playSFX("wall_slide");
+        if (!waves.empty())
+            for (const GridPos& g : waves[0].openWalls)
+                slideWall(g.x, g.y, levelDef.wallHeight);
+        return;
     }
-    // Wave 1 (start of wave two)
-    else if (waveIndex == 1) {
-        
-        // Tiles to animate
-        const std::vector<std::pair<int,int>> tiles = {
-            {24, 7},
-            {24, 8},  
-            {24, 9}
-        };
-        
-        for (auto& [x, y] : tiles) {
-            auto& tile = worldMap.get(x, y);
-            
-            WallHeightAnim anim;
-            anim.x = x;
-            anim.y = y;
-            anim.startHeight = tile.height;   // should be 1.0f
-            anim.targetHeight = 0.0f;         // slide down
-            anim.progress = 0.0f;
-            anim.speed = 0.75f;
-            anim.finished = false;
-      
-            wallAnims.push_back(anim);
 
-            pickupManager.addPickup(25.5f, 8.5f, 0.0f, PickupType::Weapon, WeaponType::Shotgun);
-        }
+    if (waveIndex >= 0 && waveIndex < (int)waves.size()) {
+        audio.playSFX("wall_slide");
+        const WaveDef& wave = waves[waveIndex];
+        for (const GridPos& g : wave.openWalls)
+            slideWall(g.x, g.y, 0.0f);
+        // Rewards are granted once per wave (previously the addPickup call
+        // sat inside the per-tile loop, granting one copy per door tile).
+        for (const PickupSpawn& p : wave.rewards)
+            pickupManager.addPickup(p.x, p.y, 0.0f, p.type, p.id);
+        return;
     }
-    // Wave 2 (start of wave three)
-    else if (waveIndex == 2) {
-            
-        // Tiles to animate
-        const std::vector<std::pair<int,int>> tiles = {
-            {24, 20},
-            {24, 21},
-            {24, 22}
-        };  
-            
-        for (auto& [x, y] : tiles) {
-            auto& tile = worldMap.get(x, y);
-            
-            WallHeightAnim anim;
-            anim.x = x;
-            anim.y = y;
-            anim.startHeight = tile.height;   // should be 1.0f
-            anim.targetHeight = 0.0f;         // slide down
-            anim.progress = 0.0f;
-            anim.speed = 0.75f;
-            anim.finished = false;
- 
-            wallAnims.push_back(anim);
 
-            pickupManager.addPickup(25.0f, 21.5f, 0.0f, PickupType::Health, WeaponType::None);
-            pickupManager.addPickup(26.0f, 21.5f, 0.0f, PickupType::Armor, WeaponType::None);
-        }
-    }
-    // Wave 3 (start of wave four)
-    else if (waveIndex == 3) {
-            
-        // Tiles to animate
-        const std::vector<std::pair<int,int>> tiles = {
-            {5, 7},
-            {5, 8},
-            {5, 9}
-        };  
-            
-        for (auto& [x, y] : tiles) {
-            auto& tile = worldMap.get(x, y);
-            
-            WallHeightAnim anim;
-            anim.x = x;
-            anim.y = y;
-            anim.startHeight = tile.height;   // should be 1.0f
-            anim.targetHeight = 0.0f;         // slide down
-            anim.progress = 0.0f;
-            anim.speed = 0.75f;
-            anim.finished = false;
- 
-            wallAnims.push_back(anim);
-
-            pickupManager.addPickup(4.5f, 8.5f, 0.0f, PickupType::Weapon, WeaponType::Mg);
-        }
-    }
-    // Wave 4 (start of wave five)
-    else if (waveIndex == 4) {
-            
-        // Tiles to animate
-        const std::vector<std::pair<int,int>> tiles = {
-            {5, 20},
-            {5, 21},
-            {5, 22}
-        };  
-            
-        for (auto& [x, y] : tiles) {
-            auto& tile = worldMap.get(x, y);
-            
-            WallHeightAnim anim;
-            anim.x = x;
-            anim.y = y;
-            anim.startHeight = tile.height;   // should be 1.0f
-            anim.targetHeight = 0.0f;         // slide down
-            anim.progress = 0.0f;
-            anim.speed = 0.75f;
-            anim.finished = false;
- 
-            wallAnims.push_back(anim);
-
-            pickupManager.addPickup(5.0f, 21.5f, 0.0f, PickupType::Health, WeaponType::None);
-            pickupManager.addPickup(4.0f, 21.5f, 0.0f, PickupType::Armor, WeaponType::None);
-        }
-    }
-    // Wave 5 (after wave five, final wave)
-    else if (waveIndex == 5) {
-            
-        // Tiles to animate
-        const std::vector<std::pair<int,int>> tiles = {
-            {14, 24},
-            {15, 24},
-        };
-          
-        for (auto& [x, y] : tiles) {
-            auto& tile = worldMap.get(x, y);
-            
-            WallHeightAnim anim;
-            anim.x = x;
-            anim.y = y;
-            anim.startHeight = tile.height;   // should be 1.0f
-            anim.targetHeight = 0.0f;         // slide down
-            anim.progress = 0.0f;
-            anim.speed = 0.75f;
-            anim.finished = false;
-     
-            wallAnims.push_back(anim);            
-        }
-    }
-    // Special case for when leaving spawn, walls go back up
-    else if (waveIndex == 100) {
-    
-        // Tiles to animate
-        const std::vector<std::pair<int,int>> tiles = {
-            {14, 4},
-            {14, 5},
-            {15, 4},
-            {15, 5}
-        };
-            
-        for (auto& [x, y] : tiles) {
-            auto& tile = worldMap.get(x, y);
-        
-            WallHeightAnim anim;
-            anim.x = x;
-            anim.y = y;
-            anim.startHeight = tile.height;   // should be 0.0f
-            anim.targetHeight = 1.0f;         // slide up
-            anim.progress = 0.0f;
-            anim.speed = 0.75f;
-            anim.finished = false;
-        
-            wallAnims.push_back(anim);        
-        }   
+    // Past the last wave: open the final corridor to the exit.
+    if (waveIndex == (int)waves.size()) {
+        audio.playSFX("wall_slide");
+        for (const GridPos& g : levelDef.finalWalls)
+            slideWall(g.x, g.y, 0.0f);
     }
 }
 
@@ -415,24 +226,28 @@ void GameSession::update(float dt, const Uint8* keys, GameState& gameState, Audi
         exit_spawn = true;
     }
 
-    Wave& wave = waves[currentWaveIndex];
+    // currentWaveIndex starts at -1 during the initial post-wave delay and
+    // only ever dereferences a real wave once it reaches 0.
+    WaveDef* wave =
+        (currentWaveIndex >= 0) ? &waves[currentWaveIndex] : nullptr;
 
     switch (waveState) {
 
         case WaveState::Spawning: {
+            if (!wave) break;  // still in the initial -1 delay state
             spawnTimer += dt;
 
-            if (spawnTimer >= wave.spawnInterval &&
-                enemiesSpawned < wave.enemies.size()) {
+            if (spawnTimer >= wave->spawnInterval &&
+                enemiesSpawned < wave->enemies.size()) {
 
-                enemyManager.spawnEnemy(wave.enemies[enemiesSpawned]);
+                enemyManager.spawnEnemy(wave->enemies[enemiesSpawned]);
                 enemiesSpawned++;
 
                 spawnTimer = 0.0f;
             }
 
             // Finished spawning, wait until cleared
-            if (enemiesSpawned == wave.enemies.size()) {
+            if (enemiesSpawned == wave->enemies.size()) {
                 waveState = WaveState::WaitingForClear;
             }
             break;
@@ -500,7 +315,7 @@ void GameSession::render(Renderer& renderer, uint32_t* pixels, int w, int h, Tex
  
     // Only calculate if there is a valid wave
     if (currentWaveIndex >= 0 && currentWaveIndex < totalWaves) {
-        Wave& wave = waves[currentWaveIndex];
+        WaveDef& wave = waves[currentWaveIndex];
         int enemiesLeftToSpawn = std::max(0, (int)wave.enemies.size() - (int)enemiesSpawned);
         int activeEnemies = enemyManager.getActiveEnemyCount();
         enemiesRemaining = enemiesLeftToSpawn + activeEnemies;
@@ -616,7 +431,7 @@ void GameSession::renderPaused(
 
     // Only calculate if there is a valid wave
     if (currentWaveIndex >= 0 && currentWaveIndex < totalWaves) {
-        Wave& wave = waves[currentWaveIndex];
+        WaveDef& wave = waves[currentWaveIndex];
         int enemiesLeftToSpawn = std::max(0, (int)wave.enemies.size() - (int)enemiesSpawned);
         int activeEnemies = enemyManager.getActiveEnemyCount();
         enemiesRemaining = enemiesLeftToSpawn + activeEnemies;

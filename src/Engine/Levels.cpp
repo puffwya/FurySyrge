@@ -13,6 +13,10 @@
 //   s  enemy spawn point        1/2/3  step h=0.25/0.5/0.75 (walkable floor)
 //   4  raised floor h=0.9       !  lava pit     (floor, h=-0.5, burns)
 //
+// Waves, per-wave sliding doors, wave rewards, the final corridor doors and
+// the starting pickups are all level data too -- adding a level means adding
+// one entry here, no engine code.
+//
 // Round-trip verified: gen_grid encodes the live Map state back to these
 // chars and dumps every cell field; the output must match the pre-migration
 // golden snapshot (single known deviation: level 2's spawn tile now also
@@ -21,7 +25,7 @@
 
 static const LevelDef LEVELS[] = {
     {  // ---- Level 1: arena -- crate cover, lava rim, sliding wave rooms, south exit ----
-        {
+        {  // ASCII grid
             "##############################",  // y=00
             "#####...####......####...#####",  // y=01
             "####......................####",  // y=02
@@ -54,9 +58,57 @@ static const LevelDef LEVELS[] = {
             "##############################",  // y=29
         },
         1.0f, 1.0f,  // wallHeight, wallCH
+        {  // waves
+        {  // wave 1: opening rush from the start room
+            6.0f,
+            { EnemyType::Base, EnemyType::Base, EnemyType::Base,
+              EnemyType::Fast, EnemyType::Base, EnemyType::Fast },
+            { {14,4}, {14,5}, {15,4}, {15,5} },
+            {}
+        },
+        {  // wave 2: east door opens, shotgun behind it
+            5.0f,
+            { EnemyType::Base, EnemyType::Fast, EnemyType::Base,
+              EnemyType::Fast, EnemyType::Base, EnemyType::Shooter,
+              EnemyType::Base, EnemyType::Shooter },
+            { {24,7}, {24,8}, {24,9} },
+            { {25.5f, 8.5f, PickupType::Weapon, WeaponType::Shotgun} }
+        },
+        {  // wave 3: south-east door, health + armor reward
+            5.0f,
+            { EnemyType::Base, EnemyType::Shooter, EnemyType::Fast,
+              EnemyType::Fast, EnemyType::Shooter, EnemyType::Base,
+              EnemyType::Shooter, EnemyType::Base, EnemyType::Base,
+              EnemyType::Fast },
+            { {24,20}, {24,21}, {24,22} },
+            { {25.0f, 21.5f, PickupType::Health, WeaponType::None},
+              {26.0f, 21.5f, PickupType::Armor,  WeaponType::None} }
+        },
+        {  // wave 4: west door opens, MG behind it
+            5.0f,
+            { EnemyType::Fast, EnemyType::Shooter, EnemyType::Base,
+              EnemyType::Shooter, EnemyType::Shooter, EnemyType::Base,
+              EnemyType::Shooter, EnemyType::Base, EnemyType::Shooter,
+              EnemyType::Fast, EnemyType::Shooter, EnemyType::Fast },
+            { {5,7}, {5,8}, {5,9} },
+            { {4.5f, 8.5f, PickupType::Weapon, WeaponType::Mg} }
+        },
+        {  // wave 5: tank finale, south-west door, health + armor reward
+            5.0f,
+            { EnemyType::Tank, EnemyType::Tank, EnemyType::Tank },
+            { {5,20}, {5,21}, {5,22} },
+            { {5.0f, 21.5f, PickupType::Health, WeaponType::None},
+              {4.0f, 21.5f, PickupType::Armor,  WeaponType::None} }
+        },
+        },
+        { {14,24}, {15,24} },  // finalWalls: corridor to the exit, opens after the last wave
+        {  // initialPickups
+            { 23.5f, 2.5f, PickupType::Health, WeaponType::None },
+            { 5.5f, 2.5f, PickupType::Weapon, WeaponType::Pistol },
+        },
     },
     {  // ---- Level 2: vertical arena -- central stairs, raised second floor, ring walls ----
-        {
+        {  // ASCII grid
             "##############################",  // y=00
             "#............................#",  // y=01
             "#............................#",  // y=02
@@ -89,6 +141,9 @@ static const LevelDef LEVELS[] = {
             "..............................",  // y=29
         },
         1.9f, 2.9f,  // wallHeight, wallCH
+        {},  // waves (given level-2 waves with the next-level flow)
+        {},  // finalWalls
+        {},  // initialPickups
     },
 };
 

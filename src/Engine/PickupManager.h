@@ -12,12 +12,7 @@ struct pair_hash {
     }
 };
 
-enum class PickupType {
-    Health,
-    Armor,
-    Ammo,
-    Weapon
-};
+#include "PickupTypes.h"
 
 struct PickupVisual {
     int w = 0;

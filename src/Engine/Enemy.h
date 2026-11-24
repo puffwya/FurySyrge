@@ -10,12 +10,7 @@ class Player;
 class EnemyManager;
 struct Animation;
 
-enum class EnemyType {
-    Base,
-    Fast,
-    Tank,
-    Shooter
-};
+#include "EnemyTypes.h"
 
 enum class EnemyState {
     Idle,

@@ -2,6 +2,7 @@
 
 #include "Player.h"
 #include "Map.h"
+#include "LevelDef.h"
 #include "EnemyManager.h"
 #include "PickupManager.h"
 #include "WeaponManager.h"
@@ -23,11 +24,6 @@
 class Renderer;
 
 class TextureManager;
-
-struct Wave {
-    float spawnInterval;
-    std::vector<EnemyType> enemies;
-};
 
 struct WallHeightAnim {
     int x;
@@ -60,7 +56,7 @@ public:
                         TextureManager& textureManager,
                         float yawDeg, float pitchDeg, const std::string& path);
 
-    std::vector<Wave> waves;
+    std::vector<WaveDef> waves;   // built from the level definition (scaled by difficulty)
     std::vector<WallHeightAnim> wallAnims;
     int currentWaveIndex = -1;
 
