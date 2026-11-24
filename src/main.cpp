@@ -14,13 +14,15 @@
 #include "Utils/PathUtils.h"
 
 #include <SDL2/SDL.h>
+#include <cstdio>
 #include <iostream>
 #include <memory>
+#include <string>
 
 int SCREEN_WIDTH = 1200;
 int SCREEN_HEIGHT = 900;
 
-int main() {
+int main(int argc, char** argv) {
     // Get Base base
     initBasePath();
 
@@ -108,6 +110,32 @@ int main() {
 
     // Game Difficulty
     Difficulty difficulty = Difficulty::Medium;
+
+    // Debug: --dump <outdir> <tag> renders a yaw x pitch grid of world-only
+    // frames to <outdir>/<tag>_yawNNN_pNN.ppm and exits, so projection
+    // changes can be eyeballed without playtesting. See
+    // GameSession::dumpWorldFrame.
+    if (argc >= 4 && std::string(argv[1]) == "--dump") {
+        const std::string outDir = argv[2];
+        const std::string tag = argv[3];
+        auto dumpSession = std::make_unique<GameSession>(
+            renderer, SCREEN_WIDTH, SCREEN_HEIGHT, difficulty);
+        static const float kYaws[]     = { 0.0f, 90.0f, 180.0f, 270.0f };
+        static const float kPitches[]  = { 0.0f, 20.0f, -20.0f, 40.0f, -40.0f };
+        int written = 0;
+        for (float yaw : kYaws) {
+            for (float pitch : kPitches) {
+                char name[128];
+                std::snprintf(name, sizeof(name), "/%s_yaw%03d_p%+03d.ppm",
+                              tag.c_str(), int(yaw), int(pitch));
+                dumpSession->dumpWorldFrame(pixels, SCREEN_WIDTH, SCREEN_HEIGHT,
+                                            textures, yaw, pitch, outDir + name);
+                ++written;
+            }
+        }
+        std::cout << "dumped " << written << " frames to " << outDir << "\n";
+        return 0;
+    }
 
     bool running = true;
     bool mainRun = true;

@@ -1,7 +1,10 @@
 #include "GameSession.h"
 #include "Renderer.h"
 #include "pItemRenderer.h"
+#include "Projection.h"
 #include <algorithm>
+#include <cmath>
+#include <fstream>
 #include <iostream>
 #include "TextureManager.h"
 
@@ -511,6 +514,67 @@ void GameSession::render(Renderer& renderer, uint32_t* pixels, int w, int h, Tex
            postWaveTimer);
 
     renderer.present();
+}
+
+// Debug: render the world at a chosen orientation to a PPM file. Driven by
+// the --dump flag in main.cpp so projection changes (the pitch remap in
+// particular) can be eyeballed and compared instead of playtested blind.
+void GameSession::dumpWorldFrame(uint32_t* pixels, int screenW, int screenH,
+                                 TextureManager& textureManager,
+                                 float yawDeg, float pitchDeg, const std::string& path) {
+    // The real spawn (Player's constructor default: 14.5, 2.5 on level 1).
+    // Note: 5.5/5.5 (the level-switch reset) sits inside an all-wall row of
+    // level 1's map, which renders as a black floor - don't use it here.
+    player.x = 14.5f;
+    player.y = 2.5f;
+    player.z = 0.5f;
+    player.velX = player.velY = player.velZ = 0.0f;
+    player.angle = yawDeg * Projection::PI / 180.0f;
+    player.pitch = pitchDeg * Projection::PI / 180.0f;
+    player.damageFlashIntensity = 0.0f;
+
+    // One enemy a few metres ahead on flat floor, so the sprite path is
+    // covered by the dump too. Falls back to a real spawn point (which may
+    // be off-screen) when nothing usable lies ahead.
+    enemyManager.deactivateAll();
+    if (Enemy* e = enemyManager.spawnEnemy(EnemyType::Base)) {
+        for (float d = 2.0f; d <= 8.0f; d += 1.0f) {
+            const float ex = player.x + std::cos(player.angle) * d;
+            const float ey = player.y + std::sin(player.angle) * d;
+            if (ex < 0.0f || ey < 0.0f || ex >= float(Map::SIZE) || ey >= float(Map::SIZE))
+                continue;
+            const Map::Cell& cell = worldMap.get(int(ex), int(ey));
+            if (cell.height >= 0.0f && cell.height <= 0.25f && cell.cHeight > 0.75f) {
+                e->x = ex;
+                e->y = ey;
+                e->z = cell.height;
+                break;
+            }
+        }
+    }
+
+    doomRenderer->render(pixels, screenW, screenH, player, worldMap, zBuffer,
+                         enemyManager, textureManager, bulletHoleManager);
+
+    // Binary PPM (P6); pixels are 0xAARRGGBB (see the ceiling/bullet-hole
+    // writes in DoomRenderer).
+    std::ofstream out(path, std::ios::binary);
+    if (!out) {
+        std::cerr << "dumpWorldFrame: cannot open " << path << "\n";
+        return;
+    }
+    out << "P6\n" << screenW << " " << screenH << "\n255\n";
+    std::vector<unsigned char> row(size_t(screenW) * 3);
+    for (int y = 0; y < screenH; ++y) {
+        for (int x = 0; x < screenW; ++x) {
+            const uint32_t c = pixels[y * screenW + x];
+            row[size_t(x) * 3 + 0] = uint8_t((c >> 16) & 0xFF);
+            row[size_t(x) * 3 + 1] = uint8_t((c >> 8) & 0xFF);
+            row[size_t(x) * 3 + 2] = uint8_t(c & 0xFF);
+        }
+        out.write(reinterpret_cast<const char*>(row.data()), std::streamsize(row.size()));
+    }
+    if (!out) std::cerr << "dumpWorldFrame: write failed for " << path << "\n";
 }
 
 void GameSession::renderPaused(

@@ -15,7 +15,9 @@
 #include "../settings/GameSettings.h"
 
 #include <memory>
+#include <string>
 #include <vector>
+#include <cstdint>
 #include <SDL2/SDL.h>
 
 class Renderer;
@@ -49,6 +51,14 @@ public:
     void render(Renderer& renderer, uint32_t* pixels, int screenW, int screenH, TextureManager& textureManager);
 
     void renderPaused(Renderer& renderer, uint32_t* pixels, int screenW, int screenH, float pauseT, TextureManager& textureManager);
+
+    // Debug helper for main.cpp's --dump mode: render one world-only frame
+    // (no weapon/HUD/damage flash) at the given yaw/pitch into a binary PPM
+    // file, so projection changes can be compared visually instead of being
+    // playtested blind.
+    void dumpWorldFrame(uint32_t* pixels, int screenW, int screenH,
+                        TextureManager& textureManager,
+                        float yawDeg, float pitchDeg, const std::string& path);
 
     std::vector<Wave> waves;
     std::vector<WallHeightAnim> wallAnims;
