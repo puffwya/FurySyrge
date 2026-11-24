@@ -13,6 +13,7 @@ set(SOURCES
     Engine/BSP.cpp
     Engine/DoomRenderer.cpp
     Engine/HUD.cpp
+    Engine/Levels.cpp
     Menu/MainMenu.cpp
     Menu/PauseMenu.cpp
     Menu/GameOver.cpp

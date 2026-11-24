@@ -2,6 +2,7 @@
 #define MAP_H
 
 #include <algorithm>
+#include "LevelDef.h"
 
 struct RayHit {
     int tileX;
@@ -43,52 +44,12 @@ public:
     // -----------------------------
     // Editable raw tile map
     // -----------------------------
-    int rawMap[SIZE][SIZE] = {
-
-        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-        {1,1,1,1,1,0,0,0,1,1,1,1,0,0,0, 0,0,0,1,1,1,1,0,0,0,1,1,1,1,1},
-        {1,1,1,1,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,1,1,1,1},
-        {1,1,1,1,1,0,0,0,1,1,1,1,0,0,0, 0,0,0,1,1,1,1,0,0,0,1,1,1,1,1},
-        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-
-        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-        {1,1,1,1,1,1,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,1,1,1,1,1,1},
-        {1,1,1,0,0,1,0,0,1,1,1,0,0,0,0, 0,0,0,0,1,1,1,0,0,1,0,0,1,1,1},
-        {1,1,1,0,0,1,0,0,1,1,1,0,2,0,0, 0,0,0,0,1,1,1,0,2,1,0,0,1,1,1},
-        {1,1,1,0,0,1,0,0,1,1,1,0,0,0,0, 0,0,0,0,1,1,1,0,0,1,0,0,1,1,1},
-
-        {1,1,1,1,1,1,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,1,1,1,1,1,1},
-        {1,1,1,1,1,1,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,1,1,1,1,1,1},
-        {1,1,1,1,1,1,0,0,0,1,0,1,1,1,1, 1,1,1,1,0,1,0,0,0,1,1,1,1,1,1},
-        {1,1,1,1,1,1,0,0,0,0,0,1,0,0,0, 0,0,0,1,0,0,0,0,0,1,1,1,1,1,1},
-        {1,1,1,1,1,1,0,0,0,0,0,1,0,0,0, 0,0,0,1,0,0,0,0,0,1,1,1,1,1,1},
-
-        {1,1,1,1,1,1,0,0,0,0,0,1,0,0,0, 0,0,0,1,0,0,0,0,0,1,1,1,1,1,1},
-        {1,1,1,1,1,1,0,0,0,0,0,1,0,0,0, 0,0,0,1,0,0,0,0,0,1,1,1,1,1,1},
-        {1,1,1,1,1,1,0,0,0,1,0,1,1,1,1, 1,1,1,1,0,1,0,0,0,1,1,1,1,1,1},
-        {1,1,1,1,1,1,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,1,1,1,1,1,1},
-        {1,1,1,1,1,1,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,1,1,1,1,1,1},
-
-        {1,1,1,0,0,1,0,0,1,1,1,0,0,0,0, 0,0,0,0,1,1,1,0,0,1,0,0,1,1,1},
-        {1,1,1,0,0,1,2,0,1,1,1,0,0,1,0, 0,1,2,0,1,1,1,0,0,1,0,0,1,1,1},
-        {1,1,1,0,0,1,0,0,1,1,1,0,0,0,0, 0,0,0,0,1,1,1,0,0,1,0,0,1,1,1},
-        {1,1,1,1,1,1,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,1,1,1,1,1,1},
-        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-
-        {1,1,1,1,1,1,1,1,1,1,1,1,1,0,0, 0,0,1,1,1,1,1,1,1,1,1,1,1,1,1},
-        {1,1,1,1,1,1,1,1,1,1,1,1,1,0,0, 0,0,1,1,1,1,1,1,1,1,1,1,1,1,1},
-        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,0, 0,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
-    };
+    int rawMap[SIZE][SIZE] = {};  // rebuilt from the LevelDef grid on load
 
     // -----------------------------
     // Current active level
     // -----------------------------
     int currentLevel = 0;
-
-    // Saved copy of level 1 raw data (so we can restore it when switching back)
-    int s_level1Map[SIZE][SIZE];
 
     // -----------------------------
     // Struct-based map
@@ -99,372 +60,84 @@ public:
     // Construct: auto-build struct map (loads level 1 by default)
     // -----------------------------
     Map() {
-        // Save level 1 raw data for later restoration
-        for (int y = 0; y < SIZE; ++y) {
-            for (int x = 0; x < SIZE; ++x) {
-                s_level1Map[y][x] = rawMap[y][x];
-            }
-        }
         loadLevel(0);
     }
 
-    // Convert raw ints to structured Cell data
-    void initializeCells() {
-        for (int y = 0; y < SIZE; y++) {
-            for (int x = 0; x < SIZE; x++) {
-
-                int v = rawMap[y][x];
-
-                switch (v) {
-                    case 0:
-                        data[y][x] = {TileType::Empty, 0.0f, 1.0f};
-                        break;
-
-                    case 1:
-                        data[y][x] = {TileType::Wall, 1.0f, 1.0f}; // default wall and heights
-                        break;
-
-                    case 2:
-                        data[y][x] = {TileType::Spawn, 0.0f, 1.0f};
-                        break;
-                }
-            }
-        }
-    }
-
     // -----------------------------
-    // Level-specific height overrides
-    // -----------------------------
-    void applyLevel1Overrides() {
-        // Top left raised platform 
-        data[7][8].height = 0.5f;
-        data[8][8].height = 0.5f;
-        data[9][8].height = 0.5f;
-        data[7][9].height = 0.5f;
-        data[8][9].height = 0.5f;
-        data[9][9].height = 0.5f;
-        data[7][10].height = 0.5f;  
-        data[8][10].height = 0.5f;
-        data[9][10].height = 0.5f;  
-
-        // Top right raised platform
-        data[7][19].height = 0.5f;
-        data[8][19].height = 0.5f;
-        data[9][19].height = 0.5f;
-        data[7][20].height = 0.5f;
-        data[8][20].height = 0.5f;
-        data[9][20].height = 0.5f;
-        data[7][21].height = 0.5f;
-        data[8][21].height = 0.5f;
-        data[9][21].height = 0.5f;
-
-        // Bottom left raised platform
-        data[20][8].height = 0.5f;
-        data[21][8].height = 0.5f;
-        data[22][8].height = 0.5f;  
-        data[20][9].height = 0.5f;
-        data[21][9].height = 0.5f;  
-        data[22][9].height = 0.5f;
-        data[20][10].height = 0.5f;
-        data[21][10].height = 0.5f;
-        data[22][10].height = 0.5f;  
-
-        // Bottom right raised platform
-        data[20][19].height = 0.5f;
-        data[21][19].height = 0.5f;
-        data[22][19].height = 0.5f;
-        data[20][20].height = 0.5f;
-        data[21][20].height = 0.5f; 
-        data[22][20].height = 0.5f;
-        data[20][21].height = 0.5f; 
-        data[21][21].height = 0.5f;
-        data[22][21].height = 0.5f;         
-
-        // Cover walls
-        data[12][9].height = 0.25f;
-        data[17][9].height = 0.25f;
-        data[12][20].height = 0.25f;
-        data[17][20].height = 0.25f;
-
-        // Pit walls
-        data[12][11].height = -0.25f; 
-        data[12][12].height = -0.25f;
-        data[12][13].height = -0.25f;   
-        data[12][14].height = -0.25f;
-        data[12][15].height = -0.25f;
-        data[12][16].height = -0.25f;
-        data[12][17].height = -0.25f;
-        data[12][18].height = -0.25f;
-        
-        data[13][11].height = -0.25f;
-        data[14][11].height = -0.25f;
-        data[15][11].height = -0.25f;
-        data[16][11].height = -0.25f;
-        
-        data[13][18].height = -0.25f;
-        data[14][18].height = -0.25f;
-        data[15][18].height = -0.25f;
-        data[16][18].height = -0.25f;
-        
-        data[17][11].height = -0.25f;
-        data[17][12].height = -0.25f;
-        data[17][13].height = -0.25f;
-        data[17][14].height = -0.25f;
-        data[17][15].height = -0.25f;
-        data[17][16].height = -0.25f;
-        data[17][17].height = -0.25f;
-        data[17][18].height = -0.25f;
-
-        // Starting room sliding walls
-        data[4][14].isSliding = true;
-        data[5][14].isSliding = true;
-        data[4][15].isSliding = true;
-        data[5][15].isSliding = true;
-
-        // Wave 1 sliding walls
-        data[7][24].isSliding = true;
-        data[8][24].isSliding = true;
-        data[9][24].isSliding = true;
-
-        // Wave 2 sliding walls
-        data[20][24].isSliding = true;
-        data[21][24].isSliding = true;
-        data[22][24].isSliding = true;
-
-        // Wave 3 sliding walls
-        data[7][5].isSliding = true;
-        data[8][5].isSliding = true;
-        data[9][5].isSliding = true;
-
-        // Wave 4 sliding walls
-        data[20][5].isSliding = true;
-        data[21][5].isSliding = true;
-        data[22][5].isSliding = true;
-
-        // Wave 5 sliding walls
-        data[24][14].isSliding = true;
-        data[24][15].isSliding = true;
-
-        // LevelEnd Doors
-        data[28][14].isExit = true;
-        data[28][15].isExit = true;
-
-        // LevelEnd Tiles
-        data[27][14].isEscape = true;
-        data[27][15].isEscape = true;
-
-        // Lava
-        data[12][11].isLava = true;
-        data[12][12].isLava = true;
-        data[12][13].isLava = true;
-        data[12][14].isLava = true;
-        data[12][15].isLava = true;
-        data[12][16].isLava = true;
-        data[12][17].isLava = true;
-        data[12][18].isLava = true;
-        
-        data[13][11].isLava = true; 
-        data[14][11].isLava = true;  
-        data[15][11].isLava = true;
-        data[16][11].isLava = true;
-        
-        data[13][18].isLava = true;
-        data[14][18].isLava = true;
-        data[15][18].isLava = true;
-        data[16][18].isLava = true;
-        
-        data[17][11].isLava = true;
-        data[17][12].isLava = true;
-        data[17][13].isLava = true;
-        data[17][14].isLava = true;
-        data[17][15].isLava = true; 
-        data[17][16].isLava = true; 
-        data[17][17].isLava = true;
-        data[17][18].isLava = true;
-
-        // Set ceiling height = floor height + 1.0 for all raised floor tiles
-        for (int y = 0; y < SIZE; ++y) {
-            for (int x = 0; x < SIZE; ++x) {
-                float h = data[y][x].height;
-                if (h > 0.0f && h < 1.0f) {
-                    data[y][x].cHeight = h + 1.0f;
-                } else if (h < 0.0f) {
-                    // Pits/lava: no ceiling restriction (open above)
-                    data[y][x].cHeight = 10.0f;
-                }
-            }
-        }
-    }
-
-    void applyLevel2Overrides() {
-        // Central staircase: 3-step stairwell rising from main floor (row 14)
-        // to second level at row 16
-        data[13][13].height = 0.25f;
-        data[13][14].height = 0.25f;
-        data[13][15].height = 0.25f;
-        data[13][16].height = 0.25f;
-
-        data[14][13].height = 0.5f;
-        data[14][14].height = 0.5f;
-        data[14][15].height = 0.5f;
-        data[14][16].height = 0.5f;
-
-        // Open the floor at row 15 so player can walk onto stairs
-        data[15][13].type = TileType::Empty;
-        data[15][14].type = TileType::Empty;
-        data[15][15].type = TileType::Empty;
-        data[15][16].type = TileType::Empty;
-        data[15][13].height = 0.0f;
-        data[15][14].height = 0.0f;
-        data[15][15].height = 0.0f;
-        data[15][16].height = 0.0f;
-
-        // Intermediate step at row 15 (height 0.75) to bridge gap to second level
-        data[15][13].height = 0.75f;
-        data[15][14].height = 0.75f;
-        data[15][15].height = 0.75f;
-        data[15][16].height = 0.75f;
-
-        // Second level: open room at height 0.9 (rows 16-28, all inner area)
-        for (int yy = 16; yy <= 28; ++yy) {
-            for (int xx = 1; xx <= 28; ++xx) {
-                if (rawMap[yy][xx] == 0) {
-                    data[yy][xx].height = 0.9f;
-                }
-            }
-        }
-
-        // Second level cover walls (half height) scattered for variety
-        data[18][10].height = 0.25f;
-        data[18][11].height = 0.25f;
-        data[18][19].height = 0.25f;
-        data[18][20].height = 0.25f;
-        data[22][13].height = 0.25f;
-        data[22][14].height = 0.25f;
-        data[26][10].height = 0.25f;
-        data[26][20].height = 0.25f;
-
-        // Lava pit in center of second level
-        data[22][17].height = -0.5f;
-        data[22][18].height = -0.5f;
-        data[22][19].height = -0.5f;
-        data[23][17].height = -0.5f;
-        data[23][18].height = -0.5f;
-        data[23][19].height = -0.5f;
-        data[22][17].isLava = true;
-        data[22][18].isLava = true;
-        data[22][19].isLava = true;
-        data[23][17].isLava = true;
-        data[23][18].isLava = true;
-        data[23][19].isLava = true;
-
-        // Spawn point on main floor (center-left open area)
-        data[5][5].type = TileType::Spawn;
-
-        // Set ceiling height = floor height + 1.0 for all raised floor tiles
-        for (int y = 0; y < SIZE; ++y) {
-            for (int x = 0; x < SIZE; ++x) {
-                float h = data[y][x].height;
-                if (h > 0.0f && h < 1.0f) {
-                    data[y][x].cHeight = h + 1.0f;
-                } else if (h < 0.0f) {
-                    // Pits/lava: no ceiling restriction (open above)
-                    data[y][x].cHeight = 10.0f;
-                }
-            }
-        }
-
-        // Elevated ring: the second floor gets walled in at RING_H.
-        // Row 15 becomes wall tiles except the 4-tile stair doorway
-        // (cols 13-16), then every wall tile (the row-15 line plus the
-        // whole outer border) is raised. By system:
-        //  - player: step limit 0.25 and jump reach ~1.61 from the 0.9
-        //    platform (eye level 1.4) make the ring solid and taller
-        //    than you can see over
-        //  - enemies: sight and movement both key off Wall type + height
-        //  - bullets: raycastWall keys off rawMap, so shots stop at the
-        //    ring and drop holes (level 2's interior had no wall tiles)
-        // Level 2 has no isEscape/isExit tiles of its own (those belong
-        // to level 1 in applyLevel1Overrides, which this never runs for),
-        // so the ring can't block completion; level 2 is a test layout
-        // toggled with the '2' debug key.
-        for (int x = 0; x < SIZE; ++x) {
-            if (x >= 13 && x <= 16) continue; // stair doorway stays open
-            rawMap[15][x] = 1;
-            data[15][x].type = TileType::Wall;
-        }
-
-        const float RING_H = 1.9f;
-        for (int y = 0; y < SIZE; ++y) {
-            for (int x = 0; x < SIZE; ++x) {
-                if (rawMap[y][x] == 1) {
-                    data[y][x].height = RING_H;
-                    data[y][x].cHeight = RING_H + 1.0f;
-                }
-            }
-        }
-    }
-
-    // -----------------------------
-    // Load a specific level layout
+    // Load a level from its LevelDef: the ASCII grid becomes cells, and
+    // rawMap (bullet raycasts) is derived from the same cells so both
+    // consumers can never disagree about the layout.
     // -----------------------------
     void loadLevel(int levelIndex) {
         currentLevel = levelIndex;
+        const LevelDef& lvl = getLevel(levelIndex);
 
-        if (levelIndex == 1) {
-            // Level 2 map data (verticality: stairs + second level)
-            static const int lvl2[SIZE][SIZE] = {
-                {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-                {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-                {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-                {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-                {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-                {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-                {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-                {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-                {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-                {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-                {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-                {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-                {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-                {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-                {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-                {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-                {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-                {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-                {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-                {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-                {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-                {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-                {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-                {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-                {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-                {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-                {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-                {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-                {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
-            };
+        for (int y = 0; y < SIZE; ++y) {
+            for (int x = 0; x < SIZE; ++x) {
+                Cell c{};
+                c.type = TileType::Empty;
+                c.height = 0.0f;
+                c.cHeight = 1.0f;
 
-            for (int y = 0; y < SIZE; ++y) {
-                for (int x = 0; x < SIZE; ++x) {
-                    rawMap[y][x] = lvl2[y][x];
+                switch (lvl.rows[y][x]) {
+                    case '#':
+                        c.type = TileType::Wall;
+                        c.height = lvl.wallHeight;
+                        break;
+                    case 'S':
+                        c.type = TileType::Wall;
+                        c.height = lvl.wallHeight;
+                        c.isSliding = true;
+                        break;
+                    case 'E':
+                        c.type = TileType::Wall;
+                        c.height = lvl.wallHeight;
+                        c.isExit = true;
+                        break;
+                    case 'W':
+                        c.type = TileType::Wall;
+                        c.height = 0.5f;
+                        break;
+                    case 'C':
+                        c.type = TileType::Wall;
+                        c.height = 0.25f;
+                        break;
+                    case '~':
+                        c.type = TileType::Wall;
+                        c.height = -0.25f;
+                        c.isLava = true;
+                        break;
+                    case 's':
+                        c.type = TileType::Spawn;
+                        break;
+                    case 'x':
+                        c.isEscape = true;
+                        break;
+                    case '1': c.height = 0.25f; break;
+                    case '2': c.height = 0.5f;  break;
+                    case '3': c.height = 0.75f; break;
+                    case '4': c.height = 0.9f;  break;
+                    case '!': c.height = -0.5f; c.isLava = true; break;
+                    case '.':
+                    default:
+                        break;
                 }
-            }
-        } else {
-            // Level 1: restore from saved copy (rawMap may have been overwritten by level 2)
-            for (int y = 0; y < SIZE; ++y) {
-                for (int x = 0; x < SIZE; ++x) {
-                    rawMap[y][x] = s_level1Map[y][x];
-                }
-            }
-        }
 
-        initializeCells();
+                // Ceiling derivation, the rule both levels always used:
+                // open above pits, one unit of headroom over raised floors,
+                // full-height walls take the level's wall ceiling.
+                if (c.height < 0.0f)
+                    c.cHeight = 10.0f;
+                else if (c.height > 0.0f && c.height < 1.0f)
+                    c.cHeight = c.height + 1.0f;
+                else if (c.height >= 1.0f)
+                    c.cHeight = lvl.wallCH;
 
-        if (levelIndex == 1) {
-            applyLevel2Overrides();
-        } else {
-            applyLevel1Overrides();
+                data[y][x] = c;
+                rawMap[y][x] =
+                    c.type == TileType::Spawn ? 2 :
+                    c.type == TileType::Wall  ? 1 : 0;
+            }
         }
     }
 
