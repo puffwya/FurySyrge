@@ -13,9 +13,10 @@
 //   s  enemy spawn point        1/2/3  step h=0.25/0.5/0.75 (walkable floor)
 //   4  raised floor h=0.9       !  lava pit     (floor, h=-0.5, burns)
 //
-// Waves, per-wave sliding doors, wave rewards, the final corridor doors and
-// the starting pickups are all level data too -- adding a level means adding
-// one entry here, no engine code.
+// Waves, per-wave sliding doors, wave rewards, the final corridor doors,
+// the starting pickups, the player spawn and the spawn-room exit line are
+// all level data -- adding a level means adding one entry here, no engine
+// code.
 //
 // Round-trip verified: gen_grid encodes the live Map state back to these
 // chars and dumps every cell field; the output must match the pre-migration
@@ -58,7 +59,8 @@ static const LevelDef LEVELS[] = {
             "##############################",  // y=29
         },
         1.0f, 1.0f,  // wallHeight, wallCH
-        {  // waves
+        14.5f, 2.5f, 0.0f, 10.0f,  // playerSpawnX/Y, angle, spawnExitY
+        {  // waves (spawnPoints left empty = all "s" tiles)
         {  // wave 1: opening rush from the start room
             6.0f,
             { EnemyType::Base, EnemyType::Base, EnemyType::Base,
@@ -141,6 +143,7 @@ static const LevelDef LEVELS[] = {
             "..............................",  // y=29
         },
         1.9f, 2.9f,  // wallHeight, wallCH
+        5.5f, 5.5f, 0.0f, -1.0f,  // playerSpawnX/Y, angle, spawnExitY
         {},  // waves (given level-2 waves with the next-level flow)
         {},  // finalWalls
         {},  // initialPickups

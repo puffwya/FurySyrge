@@ -5,6 +5,7 @@
 #include "Enemy.h"
 #include "PickupManager.h"
 #include "Map.h"
+#include "LevelDef.h"
 #include <unordered_map>
 #include <SDL2/SDL.h>
 
@@ -27,8 +28,6 @@ class EnemyManager {
 public:
     static const int MAX_ENEMIES = 128;
 
-    struct SpawnPoint { int x, y; };
-
     EnemyManager();
 
     Enemy enemies[MAX_ENEMIES];
@@ -37,7 +36,15 @@ public:
     std::unordered_map<EnemyType, EnemyVisual> enemyVisualsDamaged;
 
     void scanMapForSpawnPoints(const Map& map);
-    Enemy* spawnEnemy(EnemyType type);
+
+    // All spawn points found on the loaded level.
+    const std::vector<GridPos>& getSpawnPoints() const { return spawnPoints; }
+
+    // Spawn at one of `candidates` (the level's points, or a wave's own
+    // group), preferring points far enough from the player and out of its
+    // line of sight; falls back to plain round-robin when nothing qualifies.
+    Enemy* spawnEnemy(EnemyType type, const std::vector<GridPos>& candidates,
+                      const Player& player, const Map& map);
 
     void loadEnemyAssets();
     void update(float dt, const Player& player, PickupManager& pickupManager, const Map& map, AudioManager& audio);
@@ -49,9 +56,9 @@ public:
     int enemiesKilled = 0;
 
 private:
-    std::vector<SpawnPoint> spawnPoints;
+    std::vector<GridPos> spawnPoints;
     int nextSpawnIndex = 0;
-    void trySpawnAmmoDrop(const Enemy& e, const Player& player, PickupManager& pickupManager);
+    void trySpawnAmmoDrop(const Enemy& e, const Player& player, PickupManager& pickupManager, const Map& map);
 };
 
 #endif

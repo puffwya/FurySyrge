@@ -88,7 +88,7 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH, Difficult
     pickupManager.loadPickupAssets();
 
     for (const PickupSpawn& p : getLevel(0).initialPickups)
-        pickupManager.addPickup(p.x, p.y, 0.0f, p.type, p.id);
+        pickupManager.addPickup(p.x, p.y, p.type, p.id, worldMap);
 
     doomRenderer->setPickupManager(pickupManager);
 
@@ -114,6 +114,16 @@ void GameSession::loadLevel(int levelIndex) {
     segments = buildSegmentsFromGrid(worldMap);
     bspRoot = buildBSP(segments);
     doomRenderer = std::make_unique<DoomRenderer>(segments, std::move(bspRoot));
+
+    // Start the player at the level's authored spawn, standing on its
+    // floor (eye height 0.5 above it), and re-arm the spawn-room trigger.
+    const LevelDef& def = getLevel(levelIndex);
+    player.x = def.playerSpawnX;
+    player.y = def.playerSpawnY;
+    player.z = worldMap.get(int(def.playerSpawnX), int(def.playerSpawnY)).height + 0.5f;
+    player.velX = player.velY = player.velZ = 0.0f;
+    player.angle = def.playerSpawnAngle;
+    exit_spawn = false;
 }
 
 void GameSession::startWave(int index) {
@@ -158,7 +168,7 @@ void GameSession::startWaveWallAnimations(int waveIndex, AudioManager& audio) {
         // Rewards are granted once per wave (previously the addPickup call
         // sat inside the per-tile loop, granting one copy per door tile).
         for (const PickupSpawn& p : wave.rewards)
-            pickupManager.addPickup(p.x, p.y, 0.0f, p.type, p.id);
+            pickupManager.addPickup(p.x, p.y, p.type, p.id, worldMap);
         return;
     }
 
@@ -200,13 +210,10 @@ void GameSession::updateWallAnimations(float dt, AudioManager& audio) {
 }
 
 void GameSession::update(float dt, const Uint8* keys, GameState& gameState, AudioManager& audio) {
-    // Temporary: press '2' to switch to level 2, '1' for level 1
+    // Temporary: press '2' to switch levels (loadLevel re-spawns the player)
     static bool prevKey2 = false;
     if (keys[SDL_SCANCODE_2] && !prevKey2) {
         loadLevel(currentLevel == 0 ? 1 : 0);
-        // Reset player to safe spawn area on main floor
-        player.x = 5.5f; player.y = 5.5f; player.z = 0.5f;
-        player.velX = 0; player.velY = 0; player.velZ = 0;
     }
     prevKey2 = keys[SDL_SCANCODE_2];
 
@@ -220,8 +227,11 @@ void GameSession::update(float dt, const Uint8* keys, GameState& gameState, Audi
     if (currentWaveIndex >= (int)waves.size())
         return;
 
-    // Raise Starting room wall after player leaves
-    if (player.y > 10 && exit_spawn == false) {
+    // Raise the start-room doors once the player crosses the level's
+    // spawn-room exit line (negative = the level has no spawn room).
+    const LevelDef& levelDef = getLevel(currentLevel);
+    if (levelDef.spawnExitY >= 0.0f &&
+        player.y > levelDef.spawnExitY && exit_spawn == false) {
         startWaveWallAnimations(100, audio);
         exit_spawn = true;
     }
@@ -240,7 +250,11 @@ void GameSession::update(float dt, const Uint8* keys, GameState& gameState, Audi
             if (spawnTimer >= wave->spawnInterval &&
                 enemiesSpawned < wave->enemies.size()) {
 
-                enemyManager.spawnEnemy(wave->enemies[enemiesSpawned]);
+                const std::vector<GridPos>& points =
+                    wave->spawnPoints.empty() ? enemyManager.getSpawnPoints()
+                                              : wave->spawnPoints;
+                enemyManager.spawnEnemy(wave->enemies[enemiesSpawned],
+                                        points, player, worldMap);
                 enemiesSpawned++;
 
                 spawnTimer = 0.0f;
@@ -337,12 +351,11 @@ void GameSession::render(Renderer& renderer, uint32_t* pixels, int w, int h, Tex
 void GameSession::dumpWorldFrame(uint32_t* pixels, int screenW, int screenH,
                                  TextureManager& textureManager,
                                  float yawDeg, float pitchDeg, const std::string& path) {
-    // The real spawn (Player's constructor default: 14.5, 2.5 on level 1).
-    // Note: 5.5/5.5 (the level-switch reset) sits inside an all-wall row of
-    // level 1's map, which renders as a black floor - don't use it here.
-    player.x = 14.5f;
-    player.y = 2.5f;
-    player.z = 0.5f;
+    // The level's authored spawn (level 1: 14.5, 2.5 on flat floor).
+    const LevelDef& def = getLevel(worldMap.currentLevel);
+    player.x = def.playerSpawnX;
+    player.y = def.playerSpawnY;
+    player.z = worldMap.get(int(def.playerSpawnX), int(def.playerSpawnY)).height + 0.5f;
     player.velX = player.velY = player.velZ = 0.0f;
     player.angle = yawDeg * Projection::PI / 180.0f;
     player.pitch = pitchDeg * Projection::PI / 180.0f;
@@ -352,7 +365,9 @@ void GameSession::dumpWorldFrame(uint32_t* pixels, int screenW, int screenH,
     // covered by the dump too. Falls back to a real spawn point (which may
     // be off-screen) when nothing usable lies ahead.
     enemyManager.deactivateAll();
-    if (Enemy* e = enemyManager.spawnEnemy(EnemyType::Base)) {
+    if (Enemy* e = enemyManager.spawnEnemy(EnemyType::Base,
+                                           enemyManager.getSpawnPoints(),
+                                           player, worldMap)) {
         for (float d = 2.0f; d <= 8.0f; d += 1.0f) {
             const float ex = player.x + std::cos(player.angle) * d;
             const float ey = player.y + std::sin(player.angle) * d;

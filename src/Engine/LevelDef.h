@@ -28,6 +28,7 @@ struct WaveDef {
     std::vector<EnemyType> enemies;   // spawn order
     std::vector<GridPos> openWalls;   // sliding walls opened for this wave
     std::vector<PickupSpawn> rewards; // granted once when the wave starts
+    std::vector<GridPos> spawnPoints; // empty = use all of the level's points
 };
 
 // A level's complete authored definition: the ASCII layout plus the few
@@ -40,6 +41,12 @@ struct LevelDef {
     const char* rows[SIZE];     // ASCII layout, one string per row (y)
     float wallHeight;           // height of '#', 'S', 'E' wall tiles
     float wallCH;               // ceiling Z for those full-height walls
+
+    float playerSpawnX;         // where the player starts (sub-tile coords)
+    float playerSpawnY;
+    float playerSpawnAngle;     // initial yaw, radians
+    float spawnExitY;           // crossing this y closes the start room;
+                                // negative = no spawn room on this level
 
     std::vector<WaveDef> waves;              // played in order
     std::vector<GridPos> finalWalls;         // opened once all waves are cleared

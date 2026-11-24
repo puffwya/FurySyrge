@@ -43,8 +43,9 @@ public:
     // Load all pickup textures
     void loadPickupAssets();
 
-    // Spawn a pickup into the world
-    void addPickup(float x, float y, float z, PickupType type, WeaponType id);
+    // Spawn a pickup into the world; it sits on the floor of the tile at
+    // (x, y), whatever height that tile happens to be.
+    void addPickup(float x, float y, PickupType type, WeaponType id, const Map& map);
 
     // Render pickups in world space
     void renderPickups(uint32_t* pixels, int screenW, int screenH,

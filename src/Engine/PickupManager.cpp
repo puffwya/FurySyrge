@@ -74,13 +74,13 @@ void PickupManager::loadPickupAssets() {
 }
 
 // Add a pickup to the world
-void PickupManager::addPickup(float x, float y, float z, PickupType type, WeaponType id) {
+void PickupManager::addPickup(float x, float y, PickupType type, WeaponType id, const Map& map) {
     if (pickups.size() >= MAX_PICKUPS) return;
 
     Pickup p;
     p.x = x;
     p.y = y;
-    p.z = z;
+    p.z = map.get(int(x), int(y)).height;  // rest on the tile's floor
     p.type = type;
     p.id = id;
     p.active = true;

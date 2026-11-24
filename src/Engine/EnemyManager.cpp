@@ -350,18 +350,48 @@ void EnemyManager::loadEnemyAssets() {
     enemyVisualsDamaged[EnemyType::Fast] = std::move(fastDamaged);
 }
 
-Enemy* EnemyManager::spawnEnemy(EnemyType type) {
-    if (spawnPoints.empty()) return nullptr;
+Enemy* EnemyManager::spawnEnemy(EnemyType type,
+                                const std::vector<GridPos>& candidates,
+                                const Player& player,
+                                const Map& map) {
+    if (candidates.empty()) return nullptr;
 
-    const auto& pt = spawnPoints[nextSpawnIndex];
-    nextSpawnIndex = (nextSpawnIndex + 1) % spawnPoints.size();
+    // Keep spawns out of the player's face: a point is usable when it is
+    // at least MIN_SPAWN_DIST tiles away AND not in plain sight (some wall
+    // between it and the player). If nothing qualifies, fall back to plain
+    // round-robin so a wave can never stall.
+    const float MIN_SPAWN_DIST = 6.0f;
+    auto usable = [&](const GridPos& pt) {
+        const float dx = (pt.x + 0.5f) - player.x;
+        const float dy = (pt.y + 0.5f) - player.y;
+        const float dist = std::sqrt(dx * dx + dy * dy);
+        if (dist < MIN_SPAWN_DIST) return false;
+        // Stop the ray short of the point's own tile so its floor doesn't
+        // count as an occluder; an unobstructed ray = visible = unusable.
+        RayHit hit;
+        const bool clearShot =
+            dist > 1.0f &&
+            !map.raycastWall(player.x, player.y, dx / dist, dy / dist,
+                             dist - 0.9f, hit);
+        return !clearShot;
+    };
 
+    const int n = (int)candidates.size();
+    int chosen = -1;
+    for (int i = 0; i < n; ++i) {
+        const int idx = (nextSpawnIndex + i) % n;
+        if (usable(candidates[idx])) { chosen = idx; break; }
+    }
+    if (chosen < 0) chosen = nextSpawnIndex % n;  // fallback: spawn anyway
+    nextSpawnIndex = (chosen + 1) % n;
+
+    const GridPos& pt = candidates[chosen];
     for (int i = 0; i < MAX_ENEMIES; i++) {
         if (!enemies[i].active) {
             Enemy& e = enemies[i];
             e.reset();
             e.activate(pt.x, pt.y, type, *this);
-            e.z = 0.0f;
+            e.z = map.get(pt.x, pt.y).height;  // stand on the tile's floor
             e.height = 0.75f;
             return &e;
         }
@@ -373,7 +403,8 @@ Enemy* EnemyManager::spawnEnemy(EnemyType type) {
 void EnemyManager::trySpawnAmmoDrop(
     const Enemy& e,
     const Player& player,
-    PickupManager& pickupManager)
+    PickupManager& pickupManager,
+    const Map& map)
 {
     static std::mt19937 rng{ std::random_device{}() };
     std::uniform_real_distribution<float> dropRoll(0.0f, 1.0f);
@@ -405,9 +436,9 @@ void EnemyManager::trySpawnAmmoDrop(
     pickupManager.addPickup(
         e.x,
         e.y,
-        0.0f,
         PickupType::Ammo,
-        weaponType
+        weaponType,
+        map
     );
 }
 
@@ -424,7 +455,7 @@ void EnemyManager::update(float dt, const Player& player, PickupManager& pickupM
 
         // Death logic
         if (e.deathJustFinished) {
-            trySpawnAmmoDrop(e, player, pickupManager);
+            trySpawnAmmoDrop(e, player, pickupManager, map);
             // Keep track of enemies killed
             enemiesKilled += 1;
             e.deathJustFinished = false;
